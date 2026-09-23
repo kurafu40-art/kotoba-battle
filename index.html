@@ -2,495 +2,372 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-
-<meta
-  name="viewport"
-  content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
->
-
-<meta name="theme-color" content="#17111f">
+<meta name="viewport"
+content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 
 <title>ことばバトル！</title>
 
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 
 <style>
-
-/* =========================================================
-   基本
-========================================================= */
-
 *{
   box-sizing:border-box;
   -webkit-tap-highlight-color:transparent;
 }
 
 :root{
-  --ink:#261e2c;
-  --dark:#17111f;
-  --panel:#fffaf2;
-  --gold:#f6c65c;
-  --red:#ef5268;
-  --blue:#398fe5;
-  --pink:#ef70a5;
-  --green:#55b978;
+  --gold:#f5ce6a;
+  --gold2:#9c6727;
+  --paper:#fff2d4;
+  --navy:#101c2b;
+  --red:#b8232d;
+  --blue:#17639e;
+  --pink:#df6591;
 }
 
-html,
-body{
-  margin:0;
+html,body{
   width:100%;
   height:100%;
+  margin:0;
   overflow:hidden;
-  background:#120e19;
+  background:#080d14;
   font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Noto Sans JP",
-    sans-serif;
-  color:var(--ink);
+  -apple-system,
+  BlinkMacSystemFont,
+  "Noto Sans JP",
+  sans-serif;
 }
 
 button{
   font:inherit;
-  border:0;
-  touch-action:manipulation;
   cursor:pointer;
+  touch-action:manipulation;
 }
 
 button:disabled{
+  opacity:.4;
   cursor:default;
 }
 
-#game{
-  position:relative;
+#app{
   width:100vw;
   height:100dvh;
   overflow:hidden;
-  background:#efe8db;
+  position:relative;
 }
 
 .screen{
   position:absolute;
   inset:0;
   display:none;
-  overflow:hidden;
 }
 
 .screen.on{
   display:flex;
 }
 
-.hidden{
-  display:none!important;
-}
+/* =====================================================
+   共通背景
+===================================================== */
 
-
-/* =========================================================
-   縦画面警告
-========================================================= */
-
-#rotateNotice{
-  display:none;
-  position:absolute;
-  inset:0;
-  z-index:9999;
+.game-bg{
   background:
-    radial-gradient(circle at 50% 40%,#3b2948,#15101d 70%);
-  color:white;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  padding:35px;
+    radial-gradient(circle at 50% 15%,#9dd5ff55,transparent 32%),
+    radial-gradient(circle at 15% 55%,#8d2b2255,transparent 30%),
+    radial-gradient(circle at 85% 55%,#ec91b455,transparent 30%),
+    linear-gradient(#183b5d,#101826 70%,#080d14);
 }
 
-.rotateIcon{
-  font-size:64px;
-}
-
-.rotateTitle{
-  font-size:24px;
-  font-weight:1000;
-  margin-top:15px;
-}
-
-.rotateText{
-  opacity:.8;
-  margin-top:8px;
-  font-size:14px;
-}
-
-@media (orientation:portrait) and (max-width:900px){
-  #rotateNotice{
-    display:flex;
-  }
-}
-
-
-/* =========================================================
-   共通ボタン
-========================================================= */
-
-.mainButton{
-  position:relative;
-  min-height:58px;
-  padding:12px 40px;
-  border-radius:18px;
-  color:white;
-  font-size:20px;
-  font-weight:1000;
-  letter-spacing:.05em;
-
-  background:
-    linear-gradient(#f36d70,#bd263d);
-
-  border:3px solid #ffe5a0;
-
-  box-shadow:
-    inset 0 0 0 2px #7f1729,
-    0 6px 0 #651624,
-    0 10px 25px #0006;
-}
-
-.mainButton:active{
-  transform:translateY(4px);
-  box-shadow:
-    inset 0 0 0 2px #7f1729,
-    0 2px 0 #651624;
-}
-
-.mainButton.blue{
-  background:linear-gradient(#4ca9ee,#2362b6);
-  box-shadow:
-    inset 0 0 0 2px #174c88,
-    0 6px 0 #163c6a,
-    0 10px 25px #0005;
-}
-
-.mainButton.gold{
-  color:#402b0f;
-  background:linear-gradient(#ffe89a,#e9a82c);
-  box-shadow:
-    inset 0 0 0 2px #9e6711,
-    0 6px 0 #8e5e17,
-    0 10px 25px #0005;
-}
-
-.subButton{
-  min-height:40px;
-  padding:8px 15px;
-  border-radius:12px;
-  background:#33283d;
-  color:white;
-  font-weight:900;
-}
-
-.backButton{
-  position:absolute;
-  left:14px;
-  top:12px;
-  z-index:10;
-
-  padding:9px 15px;
-  border-radius:12px;
-
-  background:#241b2dcc;
-  color:white;
-  font-weight:900;
-  border:1px solid #ffffff33;
-}
-
-
-/* =========================================================
-   タイトル画面
-========================================================= */
-
-#titleScreen{
-  flex-direction:column;
-  justify-content:space-between;
-  color:white;
-
-  background:
-    radial-gradient(circle at 50% 30%,#fff8cf 0,#ffe1a2 8%,transparent 24%),
-    radial-gradient(circle at 16% 52%,#9e2b24 0,#44161c 27%,transparent 48%),
-    radial-gradient(circle at 84% 50%,#ffb3d2 0,#d66c9e 24%,transparent 47%),
-    linear-gradient(120deg,#36131a 0 30%,#193d6b 48% 65%,#d789a8 100%);
-}
-
-.titleSky{
-  position:absolute;
-  inset:0;
-  overflow:hidden;
-  pointer-events:none;
-}
-
-.titleSky::before{
+.game-bg:before{
   content:"";
   position:absolute;
   inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(90deg,#0005,transparent 25%,transparent 75%,#0005),
+    radial-gradient(circle at 50% 120%,#d29b4e55,transparent 45%);
+}
+
+.gold-frame{
+  border:2px solid var(--gold);
+  box-shadow:
+    inset 0 0 0 2px #583b1c,
+    0 5px 18px #0008;
+}
+
+.game-button{
+  border:2px solid #f8d57a;
+  border-radius:14px;
+  min-height:50px;
+  padding:9px 26px;
+
+  color:#fff;
+  font-weight:1000;
+  font-size:clamp(14px,2vw,21px);
 
   background:
-    radial-gradient(circle at 50% 20%,#ffffffcc 0 2%,transparent 22%),
-    repeating-linear-gradient(
-      115deg,
-      transparent 0 80px,
-      #ffffff09 81px 83px
-    );
+    linear-gradient(#2c75b7,#154578);
 
-  opacity:.8;
+  box-shadow:
+    inset 0 0 0 2px #092d50,
+    0 5px 0 #071e35,
+    0 8px 16px #0007;
 }
 
-.titleSky::after{
-  content:"🌸  ✦  🍃  ✧  🌸   ✦  🍃  ✧";
+.game-button.red{
+  background:linear-gradient(#df4a4a,#9d1720);
+  box-shadow:
+    inset 0 0 0 2px #6f1117,
+    0 5px 0 #5d1118,
+    0 8px 16px #0007;
+}
+
+.game-button.gold{
+  color:#40290e;
+  background:linear-gradient(#ffe795,#d99b29);
+  box-shadow:
+    inset 0 0 0 2px #916017,
+    0 5px 0 #714816;
+}
+
+.game-button:active{
+  transform:translateY(3px);
+}
+
+.back{
   position:absolute;
-  left:-2%;
-  right:-2%;
-  bottom:15%;
-  font-size:26px;
-  letter-spacing:45px;
-  opacity:.45;
-  transform:rotate(-4deg);
-}
+  z-index:50;
+  left:10px;
+  bottom:10px;
 
-.titleTop{
-  position:relative;
-  z-index:2;
-  text-align:center;
-  padding-top:3vh;
-}
+  border:1px solid #d9bb78;
+  border-radius:20px;
 
-.titleLogoSmall{
-  font-size:13px;
+  padding:7px 17px;
+
+  color:white;
+  background:#15181ecc;
+
   font-weight:900;
-  letter-spacing:.4em;
-  text-shadow:0 2px 3px #0008;
 }
 
-.titleLogo{
-  margin-top:-3px;
-  font-size:clamp(42px,7vw,82px);
-  font-weight:1000;
-  letter-spacing:-.08em;
-  line-height:1;
-  color:#171219;
+/* =====================================================
+   画像
+===================================================== */
 
-  -webkit-text-stroke:
-    clamp(2px,.35vw,5px)
-    white;
-
-  text-shadow:
-    0 5px 0 #d49b3d,
-    0 9px 16px #0008;
-}
-
-.titleCatch{
-  margin-top:10px;
-  font-size:clamp(13px,1.7vw,22px);
-  font-weight:1000;
-  letter-spacing:.12em;
-  text-shadow:0 2px 5px #000;
-}
-
-.titleCharacters{
-  position:absolute;
-  inset:23% 3% 15%;
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  align-items:end;
+.character-image{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center bottom;
+  filter:drop-shadow(0 9px 10px #0009);
   pointer-events:none;
 }
 
-.titleCharacter{
-  height:100%;
-  position:relative;
-  display:flex;
-  justify-content:center;
-  align-items:flex-end;
-}
+.imageFallback{
+  position:absolute;
+  inset:0;
 
-.titleCharacterVisual{
-  width:min(28vw,330px);
-  aspect-ratio:.76;
-  border-radius:48% 48% 25% 25%;
-
-  display:flex;
+  display:none;
   align-items:center;
   justify-content:center;
 
-  font-size:clamp(65px,10vw,150px);
-
-  filter:
-    drop-shadow(0 12px 12px #0007);
-
-  border:2px solid #ffffff44;
-}
-
-.titleCharacter.hozuki .titleCharacterVisual{
-  background:
-    radial-gradient(circle at 50% 30%,#ff785f,#7d181e 47%,#1b0b10 75%);
-}
-
-.titleCharacter.nefer .titleCharacterVisual{
-  background:
-    radial-gradient(circle at 50% 30%,#ffd970,#1c76b6 48%,#0c2345 76%);
-}
-
-.titleCharacter.toma .titleCharacterVisual{
-  background:
-    radial-gradient(circle at 50% 30%,#fff2f5,#ff94bd 48%,#c85f8b 76%);
-}
-
-.titleCharacterName{
-  position:absolute;
-  bottom:5%;
-  font-size:clamp(18px,3vw,37px);
+  color:#fff;
+  font-size:clamp(24px,4vw,50px);
   font-weight:1000;
-  text-shadow:
-    0 3px 0 #000,
-    0 0 8px #000;
+
+  text-shadow:0 3px 5px #000;
 }
 
-.titleCenterPanel{
+/* =====================================================
+   ① タイトル
+===================================================== */
+
+#titleScreen{
+  color:white;
+  overflow:hidden;
+}
+
+.titleScene{
   position:absolute;
-  z-index:4;
+  inset:0;
+}
+
+.titleCharacter{
+  position:absolute;
+  bottom:8%;
+  height:76%;
+  z-index:2;
+}
+
+.titleCharacter.hozuki{
+  left:-2%;
+  width:37%;
+}
+
+.titleCharacter.nefer{
+  left:32%;
+  width:36%;
+}
+
+.titleCharacter.toma{
+  right:-2%;
+  width:38%;
+}
+
+.titleShade{
+  position:absolute;
+  inset:0;
+  z-index:3;
+  pointer-events:none;
+
+  background:
+    linear-gradient(#0002,transparent 30%),
+    linear-gradient(90deg,#0005,transparent 22%,transparent 78%,#0005);
+}
+
+.titleCenter{
+  position:absolute;
+  z-index:5;
   left:50%;
-  bottom:15%;
-  transform:translateX(-50%);
-  width:min(54vw,650px);
+  top:47%;
+  transform:translate(-50%,-50%);
+  width:min(600px,48vw);
   text-align:center;
 }
 
-.titleDescription{
-  margin:0 auto 10px;
-  width:90%;
-  padding:9px 20px;
-  border-radius:12px;
+.logo{
+  font-size:clamp(40px,7vw,84px);
+  line-height:.95;
+  font-weight:1000;
+  letter-spacing:-.09em;
 
-  color:#382a21;
-  font-size:clamp(10px,1.3vw,16px);
-  font-weight:900;
+  color:#171116;
+  -webkit-text-stroke:3px white;
 
-  background:#fff7e9e8;
-  border:2px solid #d9ad61;
-
-  box-shadow:0 5px 14px #0005;
+  text-shadow:
+    0 5px 0 #b67c32,
+    0 10px 15px #000b;
 }
 
-.titleMainButton{
-  width:100%;
+.logoRibbon{
+  display:inline-block;
+  margin-top:5px;
+  padding:4px 24px;
+
+  border-radius:20px;
+
+  color:#442d18;
+  background:#f3d892;
+  border:2px solid #9b6729;
+
+  font-weight:1000;
+  font-size:clamp(10px,1.3vw,15px);
+}
+
+.titlePaper{
+  margin:9px auto;
+  padding:8px 20px;
+
+  width:88%;
+
+  color:#352819;
+  background:#fff1d9e8;
+  border:2px solid #9b703c;
+
+  font-size:clamp(9px,1.2vw,14px);
+  font-weight:900;
+
+  box-shadow:0 4px 15px #0007;
+}
+
+.titleSelect{
+  width:82%;
+}
+
+.titleTopButtons{
+  position:absolute;
+  z-index:10;
+  right:10px;
+  top:8px;
+
+  display:flex;
+  gap:7px;
+}
+
+.iconButton{
+  min-width:58px;
+  padding:6px 9px;
+
+  border-radius:13px;
+
+  color:white;
+  background:#162338dd;
+  border:1px solid #e8c46e;
+
+  font-size:10px;
+  font-weight:900;
+}
+
+.iconButton b{
+  display:block;
+  font-size:20px;
 }
 
 .titleBottom{
-  position:relative;
-  z-index:5;
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-
-  min-height:13%;
-  margin-top:auto;
-
-  background:#141c2bee;
-  border-top:3px solid #c48b40;
-}
-
-.feature{
-  display:grid;
-  grid-template-columns:auto 1fr;
-  align-items:center;
-  gap:10px;
-
-  padding:8px 16px;
-  border-right:1px solid #ffffff22;
-}
-
-.featureIcon{
-  font-size:32px;
-}
-
-.featureTitle{
-  font-weight:1000;
-  font-size:clamp(12px,1.5vw,19px);
-}
-
-.featureText{
-  margin-top:2px;
-  font-size:clamp(8px,1vw,12px);
-  opacity:.8;
-}
-
-.titleMenu{
   position:absolute;
-  right:12px;
-  top:10px;
-  z-index:10;
+  z-index:5;
+  left:0;
+  right:0;
+  bottom:0;
+
+  height:10%;
 
   display:flex;
-  gap:6px;
-}
+  align-items:center;
+  justify-content:center;
+  gap:35px;
 
-.titleMiniButton{
-  padding:8px 11px;
-  border-radius:10px;
+  color:#fff;
 
-  color:white;
+  background:#0d1522e8;
+  border-top:2px solid #bd8e48;
+
   font-size:11px;
-  font-weight:900;
-
-  background:#201828cc;
-  border:1px solid #ffffff33;
+  letter-spacing:.12em;
 }
 
-
-/* =========================================================
-   キャラクター選択
-========================================================= */
+/* =====================================================
+   ②③ 選択画面
+===================================================== */
 
 #selectScreen{
   flex-direction:column;
-
-  background:
-    radial-gradient(circle at 50% 0,#fff8dd,#eadbc3 45%,#c4a675);
-}
-
-.selectHeader{
-  flex:0 0 auto;
-  text-align:center;
-  padding:10px 0 5px;
-}
-
-.selectHeader h1{
-  margin:0;
-  font-size:clamp(24px,4vw,40px);
-}
-
-.selectHeader p{
-  margin:3px 0 0;
-  font-size:12px;
-  font-weight:800;
-  color:#6e5e50;
-}
-
-.pickMode{
-  display:flex;
-  justify-content:center;
-  gap:10px;
-  margin-top:6px;
-}
-
-.pickStep{
-  padding:6px 15px;
-  border-radius:30px;
-  background:#ffffff99;
-  font-size:11px;
-  font-weight:1000;
-}
-
-.pickStep.active{
-  background:#32233e;
   color:white;
+  padding:8px 12px 48px;
 }
 
-.characterGrid{
+.selectHeading{
+  text-align:center;
+  position:relative;
+  z-index:3;
+}
+
+.selectHeading h1{
+  margin:2px 0;
+  font-size:clamp(19px,3vw,32px);
+}
+
+.selectHeading p{
+  margin:0;
+  font-size:10px;
+  opacity:.8;
+}
+
+.cards{
+  position:relative;
+  z-index:3;
+
   flex:1;
   min-height:0;
 
@@ -498,185 +375,163 @@ button:disabled{
   grid-template-columns:repeat(3,1fr);
   gap:10px;
 
-  padding:5px 12px 10px;
+  width:min(980px,95vw);
+  margin:8px auto;
 }
 
-.characterCard{
+.charCard{
   position:relative;
   overflow:hidden;
 
   display:flex;
   flex-direction:column;
 
-  border-radius:20px;
-  border:4px solid #ffffff;
+  border:2px solid #e5c276;
+  border-radius:10px;
 
-  background:white;
+  padding:0;
 
-  box-shadow:
-    0 7px 0 #967e63,
-    0 12px 20px #0004;
+  color:white;
+  background:#162334;
+
+  box-shadow:0 8px 15px #0008;
 
   transition:.15s;
 }
 
-.characterCard.selected{
-  transform:translateY(-5px);
-  border-color:#ffe66f;
+.charCard.selected{
+  transform:translateY(-5px) scale(1.015);
+
+  border-color:#fff4a2;
 
   box-shadow:
-    0 0 0 4px #ff8b32,
-    0 8px 0 #8f4b16,
-    0 15px 30px #0005;
+    0 0 0 3px #e89b35,
+    0 0 28px #ffd659aa;
 }
 
-.characterArt{
+.cardArt{
+  position:relative;
   flex:1;
   min-height:0;
-
-  display:flex;
-  justify-content:center;
-  align-items:center;
-
-  font-size:clamp(65px,10vw,135px);
+  overflow:hidden;
 }
 
-.characterCard.hozuki .characterArt{
+.hozukiCard .cardArt{
   background:
-    radial-gradient(circle at 50% 28%,#ff8b62,#78171f 50%,#241016);
+    radial-gradient(circle at 50% 25%,#e15c4e,#591821 68%);
 }
 
-.characterCard.nefer .characterArt{
+.neferCard .cardArt{
   background:
-    radial-gradient(circle at 50% 28%,#ffe77c,#278fc4 48%,#112747);
+    radial-gradient(circle at 50% 25%,#e9c55e,#1d527c 68%);
 }
 
-.characterCard.toma .characterArt{
+.tomaCard .cardArt{
   background:
-    radial-gradient(circle at 50% 28%,#fff6f8,#ff9bc2 48%,#dd779e);
+    radial-gradient(circle at 50% 25%,#ffd6e5,#a94370 68%);
 }
 
-.characterInfo{
+.cardInfo{
   flex:0 0 auto;
-  padding:7px 9px 9px;
-  background:#fffaf2;
+  padding:6px 8px 8px;
+  text-align:left;
+  background:#101b29ee;
 }
 
-.characterName{
-  font-size:clamp(18px,2.5vw,29px);
+.cardName{
+  font-size:clamp(17px,2.5vw,28px);
   font-weight:1000;
 }
 
-.characterType{
-  display:inline-block;
+.cardType{
   margin-top:2px;
-  padding:3px 9px;
-  border-radius:20px;
-  color:white;
+  color:#ffe49a;
   font-size:10px;
   font-weight:1000;
 }
 
-.hozuki .characterType{
-  background:#bd343f;
+.cardDescription{
+  margin-top:4px;
+  font-size:10px;
+  font-weight:800;
 }
 
-.nefer .characterType{
-  background:#2874b6;
-}
+.cardStats{
+  display:flex;
+  justify-content:space-between;
 
-.toma .characterType{
-  background:#dd6796;
-}
-
-.characterDesc{
   margin-top:5px;
-  min-height:28px;
-  font-size:clamp(9px,1.05vw,12px);
+  padding-top:5px;
+
+  border-top:1px solid #ffffff25;
+
+  font-size:9px;
   font-weight:900;
 }
 
-.initialStats{
-  display:flex;
-  justify-content:space-around;
-  margin-top:5px;
-  padding:5px;
-
-  border-radius:9px;
-  background:#eee5d8;
-
-  font-size:clamp(9px,1vw,12px);
-  font-weight:1000;
-}
-
-.selectFooter{
-  flex:0 0 auto;
-
-  display:grid;
-  grid-template-columns:1fr minmax(250px,42%) 1fr;
-  align-items:center;
-
-  padding:6px 15px 10px;
-}
-
-.selectStatus{
+.selectAction{
+  position:relative;
+  z-index:4;
   text-align:center;
-  font-size:12px;
-  font-weight:1000;
 }
 
+#selectConfirm{
+  min-width:270px;
+}
 
-/* =========================================================
-   VS確認
-========================================================= */
+/* =====================================================
+   ④ READY
+===================================================== */
 
 #readyScreen{
   align-items:center;
   justify-content:center;
-
   color:white;
-
-  background:
-    radial-gradient(circle at 50% 50%,#fff3bc 0,#4d335e 32%,#17101e 75%);
 }
 
-.readyBox{
-  width:min(900px,92vw);
+.readyWrap{
+  position:relative;
+  z-index:3;
+  width:94%;
+  height:95%;
+}
+
+.readyHeading{
   text-align:center;
-}
-
-.readyTitle{
-  font-size:clamp(20px,3vw,34px);
+  font-size:clamp(23px,4vw,42px);
+  color:#ffe29a;
   font-weight:1000;
-  letter-spacing:.12em;
 }
 
-.readyVs{
+.readyBattle{
+  height:72%;
   display:grid;
-  grid-template-columns:1fr auto 1fr;
-  align-items:center;
-  gap:20px;
-
-  margin:12px 0;
+  grid-template-columns:1fr 130px 1fr;
 }
 
-.readyCharacter{
-  min-height:48vh;
-
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-
-  border:3px solid #ffffff88;
-  border-radius:25px;
-
-  background:#ffffff13;
-
-  box-shadow:inset 0 0 30px #ffffff15;
+.readySide{
+  position:relative;
+  min-width:0;
 }
 
-.readyEmoji{
-  font-size:clamp(70px,13vw,160px);
+.readySide .character-image{
+  object-fit:contain;
+}
+
+.readyLabel{
+  position:absolute;
+  left:10%;
+  right:10%;
+  bottom:3%;
+
+  text-align:center;
+
+  padding:8px;
+
+  border-radius:10px;
+
+  background:#10151dde;
+  border:1px solid #d6b46d;
 }
 
 .readyName{
@@ -685,869 +540,663 @@ button:disabled{
 }
 
 .readyType{
-  font-size:12px;
-  opacity:.8;
-  font-weight:900;
+  font-size:10px;
+  color:#f8d982;
 }
 
-.vsText{
-  font-size:clamp(45px,8vw,95px);
+.readyVs{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  color:#ffef85;
+  font-size:clamp(50px,8vw,90px);
   font-weight:1000;
-  color:#ffe777;
 
   text-shadow:
-    0 4px 0 #8f4018,
-    0 0 18px #ffce53;
+    0 4px 0 #9d2b18,
+    0 0 20px #ff8a22;
 }
 
-.readyActions{
-  display:flex;
-  justify-content:center;
-  gap:12px;
+.readyStart{
+  text-align:center;
 }
 
-.readyActions .mainButton{
-  min-width:260px;
-}
-
-
-/* =========================================================
-   ことば作成画面
-========================================================= */
+/* =====================================================
+   ⑤ ことば作成
+===================================================== */
 
 #growthScreen{
-  background:
-    radial-gradient(circle at 70% 25%,#fff8d9,#eee8dd 60%,#cbbfae);
+  color:white;
 }
 
-.growthLayout{
+.growthGrid{
+  position:relative;
+  z-index:3;
+
   width:100%;
   height:100%;
 
   display:grid;
-  grid-template-columns:29% 1fr;
-  grid-template-rows:auto 1fr;
-  gap:7px;
+  grid-template-columns:31% 1fr;
+  grid-template-rows:44px 1fr;
 
-  padding:
-    max(6px,env(safe-area-inset-top))
-    max(8px,env(safe-area-inset-right))
-    max(6px,env(safe-area-inset-bottom))
-    max(8px,env(safe-area-inset-left));
+  gap:6px;
+
+  padding:6px 8px;
 }
 
-.growthTop{
+.growthHeader{
   grid-column:1/-1;
 
   display:grid;
   grid-template-columns:1fr auto 1fr;
   align-items:center;
-  gap:8px;
 }
 
-.phaseBadge{
-  justify-self:start;
-
-  padding:7px 12px;
-  border-radius:12px;
-
-  color:white;
-  background:#2c2434;
-
-  font-size:12px;
+.phaseTitle{
+  font-size:14px;
   font-weight:1000;
 }
 
-.dictionaryBadge{
-  justify-self:end;
-
-  padding:7px 10px;
-  border-radius:12px;
-
-  color:white;
-  background:#2c2434;
-
-  font-size:10px;
-  font-weight:900;
-}
-
-.timer{
-  font-size:clamp(27px,4vw,43px);
-  font-weight:1000;
-  font-variant-numeric:tabular-nums;
-}
-
-.growthCharacterPanel{
-  min-height:0;
-
-  display:flex;
-  flex-direction:column;
-
-  border-radius:18px;
-  overflow:hidden;
-
-  background:#fff;
-  border:2px solid #d8c4a3;
-
-  box-shadow:0 5px 15px #0002;
-}
-
-.growthCharacterArt{
-  flex:1;
-  min-height:100px;
+.timerCircle{
+  width:58px;
+  height:58px;
 
   display:flex;
   align-items:center;
   justify-content:center;
 
-  font-size:clamp(60px,9vw,130px);
+  border-radius:50%;
 
-  background:
-    radial-gradient(circle,#fff,#e8dcc9);
-}
+  color:#fff3ac;
+  background:#182130;
+  border:3px solid #d99d42;
 
-.growthCharacterName{
-  text-align:center;
-  padding:5px;
-
-  font-size:18px;
+  font-size:22px;
   font-weight:1000;
 }
 
-.growthStats{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:4px;
-
-  padding:5px;
+.dictStatus{
+  justify-self:end;
+  font-size:9px;
 }
 
-.statBox{
-  text-align:center;
-  padding:6px 2px;
+.growthHero{
+  position:relative;
+  min-height:0;
+
+  overflow:hidden;
+
+  border:2px solid #c89b54;
+  border-radius:13px;
+
+  background:
+    radial-gradient(circle at 50% 30%,#596f85,#1a2633 70%);
+}
+
+.growthHeroImage{
+  position:absolute;
+  inset:0 0 74px 0;
+}
+
+.speech{
+  position:absolute;
+  top:13%;
+  right:4%;
+
+  max-width:45%;
+
+  padding:8px 10px;
+
+  color:#28201a;
+  background:white;
+
+  border-radius:15px;
+
+  font-size:10px;
+  font-weight:900;
+
+  box-shadow:0 4px 10px #0005;
+}
+
+.growthHeroStats{
+  position:absolute;
+  left:5px;
+  right:5px;
+  bottom:5px;
+
+  padding:6px;
 
   border-radius:9px;
-  background:#eee8df;
+
+  background:#0c1420e8;
+}
+
+.growthHeroName{
+  font-size:16px;
+  font-weight:1000;
+}
+
+.statLine{
+  display:flex;
+  justify-content:space-around;
+
+  margin-top:4px;
 
   font-size:10px;
   font-weight:900;
 }
 
-.statBox strong{
-  display:block;
-  font-size:16px;
-}
-
-.growthLog{
-  height:74px;
-  overflow:auto;
-
-  margin:5px;
-  padding:7px;
-
-  border-radius:10px;
-
-  color:white;
-  background:#282130;
-
-  font-size:9px;
-  line-height:1.45;
-}
-
-.wordPanel{
+.wordArea{
   min-width:0;
   min-height:0;
 
   display:flex;
   flex-direction:column;
   gap:5px;
+
+  padding:6px;
+
+  color:#2a231c;
+
+  border:2px solid #b58b4d;
+  border-radius:13px;
+
+  background:#f7ead4f2;
 }
 
-.wordInputRow{
+.wordTop{
   display:grid;
-  grid-template-columns:1fr 180px;
-  gap:6px;
+  grid-template-columns:1fr 130px;
+  gap:5px;
 }
 
-.wordBox{
-  min-height:43px;
+.wordDisplay{
+  min-height:40px;
 
   display:flex;
   align-items:center;
   justify-content:center;
 
-  border-radius:13px;
-  border:3px dashed #c8b7a3;
-
   background:white;
+  border:2px solid #c3a77b;
+  border-radius:9px;
 
-  font-size:clamp(19px,3vw,29px);
-  font-weight:1000;
-  letter-spacing:.08em;
-
-  overflow:hidden;
-}
-
-.carryButton{
-  border:2px solid #edae34;
-  border-radius:12px;
-
-  color:#44311c;
-  background:linear-gradient(#fff6c9,#ffdf7c);
-
-  font-size:10px;
+  font-size:22px;
   font-weight:1000;
 }
 
-.carryButton strong{
-  font-size:20px;
-  margin-left:5px;
-}
+.carry{
+  border:2px solid #d69e36;
+  border-radius:9px;
 
-.carryButton:disabled{
-  opacity:.4;
-  filter:grayscale(1);
-}
-
-
-/* 候補アシスト */
-
-.assistPanel{
-  flex:0 0 auto;
-
-  min-height:57px;
-  padding:5px 7px;
-
-  border:2px solid #d6c39d;
-  border-radius:12px;
-
-  background:#fff9e9;
-}
-
-.assistHeader{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+  background:#fff1a9;
+  color:#453318;
 
   font-size:9px;
   font-weight:1000;
-  color:#7d6845;
 }
 
-.assistCandidates{
+.assist{
+  min-height:50px;
+
+  padding:5px;
+
+  border-radius:8px;
+
+  background:#fffaf0;
+  border:1px solid #d5bd91;
+}
+
+.assistTitle{
+  font-size:8px;
+  font-weight:1000;
+}
+
+.assistList{
   display:flex;
-  gap:5px;
+  gap:4px;
 
-  margin-top:4px;
-
+  margin-top:3px;
   overflow-x:auto;
-  overflow-y:hidden;
 }
 
-.assistChip{
+.assistWord{
   flex:0 0 auto;
 
-  min-width:65px;
-  padding:6px 9px;
+  border:1px solid #d1b57c;
+  border-radius:7px;
 
-  border-radius:10px;
+  padding:4px 8px;
 
-  color:#362b26;
   background:white;
 
-  border:1px solid #e0cfac;
-
-  font-size:13px;
+  font-size:11px;
   font-weight:1000;
-
-  box-shadow:0 2px 0 #d3c29d;
 }
 
-.assistChip.used{
-  opacity:.4;
-}
-
-.tiles{
+.kanaGrid{
   flex:1;
   min-height:0;
 
   display:grid;
   grid-template-columns:repeat(5,1fr);
   grid-template-rows:repeat(2,1fr);
-  gap:6px;
-}
-
-.kanaTile{
-  min-height:42px;
-
-  border-radius:13px;
-  border:2px solid #d9d0c6;
-
-  color:#187fc3;
-  background:white;
-
-  font-size:clamp(20px,3vw,30px);
-  font-weight:1000;
-
-  box-shadow:0 3px 0 #c9beb2;
-}
-
-.kanaTile:active{
-  transform:translateY(2px);
-  box-shadow:0 1px 0 #c9beb2;
-}
-
-.wordTools{
-  display:grid;
-  grid-template-columns:repeat(6,1fr);
   gap:5px;
 }
 
-.wordTool{
-  min-height:38px;
+.kana{
+  min-height:35px;
 
-  border-radius:10px;
+  border:2px solid #bda276;
+  border-radius:8px;
 
-  color:#2f638b;
-  background:#e7eef3;
+  color:#392b20;
+  background:linear-gradient(#fff,#f3e4c7);
 
+  font-size:clamp(18px,3vw,28px);
+  font-weight:1000;
+
+  box-shadow:0 3px 0 #967749;
+}
+
+.tools{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:4px;
+}
+
+.tool{
+  min-height:33px;
+
+  border:0;
+  border-radius:7px;
+
+  background:#d9e4e9;
+  color:#234b65;
+
+  font-size:9px;
+  font-weight:1000;
+}
+
+.tool.submit{
+  grid-column:span 2;
+  color:white;
+  background:#19649c;
+}
+
+.tool.shuffle{
+  color:white;
+  background:#1e5277;
+}
+
+.message{
+  min-height:20px;
+  text-align:center;
   font-size:10px;
   font-weight:1000;
 }
 
-.wordTool.decision{
-  grid-column:span 2;
-
-  color:white;
-  background:linear-gradient(#ff6b7e,#d83d56);
-
-  font-size:12px;
-}
-
-.wordTool.reset{
-  color:white;
-  background:#4d4158;
-}
-
-.growthMessage{
-  min-height:23px;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  border-radius:9px;
-
-  font-size:11px;
-  font-weight:1000;
-}
-
-.growthMessage.good{
-  color:#14642e;
-  background:#dff6e5;
-}
-
-.growthMessage.bad{
-  color:#9d2435;
-  background:#ffe1e5;
-}
-
-
-/* =========================================================
-   ターン切替
-========================================================= */
-
-#transitionScreen{
-  align-items:center;
-  justify-content:center;
-
-  color:white;
-
-  background:
-    radial-gradient(circle,#65537a,#17111f 65%);
-}
-
-.transitionBox{
-  text-align:center;
-}
-
-.transitionTitle{
-  font-size:clamp(30px,6vw,68px);
-  font-weight:1000;
-
-  text-shadow:0 4px 0 #000;
-}
-
-.transitionStats{
-  display:flex;
-  justify-content:center;
-  gap:12px;
-
-  margin:18px 0;
-}
-
-.transitionStat{
-  min-width:100px;
-
-  padding:9px 15px;
-  border-radius:12px;
-
-  background:#ffffff17;
-  border:1px solid #ffffff33;
-
-  font-weight:1000;
-}
-
-
-/* =========================================================
-   バトル
-========================================================= */
+/* =====================================================
+   ⑥ バトル
+===================================================== */
 
 #battleScreen{
   flex-direction:column;
-
-  background:
-    radial-gradient(circle at 50% 20%,#fff2b6,#ccb8dd 47%,#7897bd);
+  color:white;
 }
 
-.battleHeader{
-  flex:0 0 auto;
+.battleTop{
+  position:relative;
+  z-index:3;
 
   display:grid;
   grid-template-columns:1fr auto 1fr;
-  align-items:center;
+  gap:20px;
 
-  padding:5px 10px;
+  padding:5px 12px;
 }
 
-.battlePhase{
-  justify-self:start;
-
-  padding:5px 11px;
-  border-radius:10px;
-
-  color:white;
-  background:#261e30;
-
-  font-size:10px;
-  font-weight:1000;
-}
-
-.battleTurn{
-  font-size:13px;
-  font-weight:1000;
-}
-
-.battleRound{
-  justify-self:end;
-  font-size:10px;
-  font-weight:900;
-}
-
-.arena{
-  flex:1;
-  min-height:0;
-
-  display:grid;
-  grid-template-columns:40% 20% 40%;
-  grid-template-rows:1fr 88px;
-
-  padding:0 8px 6px;
-}
-
-.fighter{
-  position:relative;
+.battleHUD{
   min-width:0;
-
-  display:flex;
-  align-items:stretch;
-
-  padding:4px;
 }
 
-.playerFighter{
-  grid-column:1;
-  grid-row:1;
-}
-
-.enemyFighter{
-  grid-column:3;
-  grid-row:1;
-
-  flex-direction:row-reverse;
+.battleHUD.enemy{
   text-align:right;
 }
 
-.battleCharacterArt{
-  width:68%;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  border-radius:18px;
-
-  font-size:clamp(60px,10vw,145px);
-
-  background:#ffffff55;
-  border:3px solid white;
-
-  box-shadow:0 8px 18px #0003;
-
-  transition:.15s;
-}
-
-.fighterInfo{
-  width:32%;
-  padding:5px;
-}
-
-.fighterName{
-  font-size:clamp(13px,1.7vw,19px);
+.hudName{
   font-weight:1000;
 }
 
 .hpBar{
-  height:15px;
-  margin-top:5px;
-
+  height:14px;
   overflow:hidden;
 
-  border-radius:20px;
+  border:2px solid #e4c176;
+  border-radius:10px;
 
-  background:#302b35;
-  border:2px solid white;
+  background:#361519;
 }
 
 .hpFill{
   height:100%;
   width:100%;
 
-  background:
-    linear-gradient(90deg,#48c96c,#c3e65a);
-
-  transition:.35s;
+  background:linear-gradient(90deg,#e83f3f,#ff9a47);
+  transition:.3s;
 }
 
-.battleStats{
-  margin-top:5px;
+.battleTurn{
+  align-self:center;
 
-  font-size:9px;
+  color:#ffe993;
+  font-size:11px;
   font-weight:1000;
-  line-height:1.5;
 }
 
-.effects{
-  margin-top:4px;
-  min-height:20px;
+.battleArena{
+  position:relative;
+  z-index:3;
 
-  font-size:8px;
-  font-weight:900;
+  flex:1;
+  min-height:0;
+
+  display:grid;
+  grid-template-columns:43% 14% 43%;
 }
 
-.battleCenter{
-  grid-column:2;
-  grid-row:1;
-
+.battleChar{
+  position:relative;
   min-width:0;
+  overflow:hidden;
+}
 
+.battleChar .character-image{
+  transition:.2s;
+}
+
+.battleMiddle{
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
 }
 
-.battleVS{
-  font-size:clamp(30px,5vw,60px);
+.vs{
+  font-size:40px;
   font-weight:1000;
-  color:#fff4a3;
+  color:#ffe475;
+}
 
-  text-shadow:0 3px 0 #6f3919;
+.damageText{
+  min-height:38px;
+
+  text-align:center;
+
+  color:#fff3a2;
+  font-size:15px;
+  font-weight:1000;
+
+  text-shadow:0 2px 2px #000;
 }
 
 .battleLog{
   width:100%;
-  height:44%;
+  height:40%;
+
   overflow:auto;
 
-  margin-top:auto;
-  padding:7px;
+  padding:5px;
 
-  border-radius:10px;
+  border-radius:7px;
 
-  color:white;
-  background:#211a2ddd;
+  background:#0a111bdd;
 
-  font-size:8px;
-  line-height:1.45;
+  font-size:7px;
 }
 
 .commands{
-  grid-column:1/-1;
-  grid-row:2;
+  position:relative;
+  z-index:4;
+
+  height:76px;
 
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  gap:6px;
+  gap:5px;
 
-  padding-top:5px;
+  padding:5px 8px 8px;
 }
 
 .command{
-  border-radius:13px;
+  border:2px solid #f2cf77;
+  border-radius:10px;
 
   color:white;
-
-  font-size:clamp(10px,1.5vw,15px);
+  font-size:13px;
   font-weight:1000;
 
-  box-shadow:0 4px 0 #0004;
+  box-shadow:0 4px 0 #0007;
+}
+
+.attack{
+  background:#b93434;
+}
+
+.guard{
+  background:#316ca8;
+}
+
+.skill{
+  background:#70479d;
+}
+
+.ultimate{
+  background:#b9781d;
 }
 
 .command small{
   display:block;
-  margin-top:2px;
-
-  font-size:8px;
-  opacity:.8;
+  font-size:7px;
 }
 
-.command.attack{
-  background:linear-gradient(#ee665d,#b72f32);
-}
-
-.command.guard{
-  background:linear-gradient(#5f9be6,#3264ad);
-}
-
-.command.skill{
-  background:linear-gradient(#a76bdd,#7040a6);
-}
-
-.command.ultimate{
-  background:linear-gradient(#ffc650,#dc7d17);
-}
-
-.command:disabled{
-  opacity:.35;
-  filter:grayscale(1);
-  box-shadow:none;
-}
-
-.hit{
-  animation:hit .25s;
-}
-
-@keyframes hit{
-  50%{
-    transform:translateX(10px) rotate(2deg);
-    filter:brightness(1.8);
-  }
-}
-
-.attackMove{
-  animation:attackMove .28s;
-}
-
-@keyframes attackMove{
-  50%{
-    transform:translateX(35px) scale(1.04);
-  }
-}
-
-
-/* =========================================================
-   結果
-========================================================= */
+/* =====================================================
+   ⑦ 結果
+===================================================== */
 
 #resultScreen{
   align-items:center;
   justify-content:center;
-
   color:white;
-
-  background:
-    radial-gradient(circle,#604d76,#17111f 68%);
 }
 
-.resultCard{
-  width:min(600px,88vw);
+.resultLayout{
+  position:relative;
+  z-index:3;
 
-  padding:25px;
+  width:95%;
+  height:92%;
 
-  text-align:center;
+  display:grid;
+  grid-template-columns:48% 52%;
+}
 
-  border-radius:25px;
+.resultCharacter{
+  position:relative;
+}
 
-  color:#33293a;
-  background:#fff9ee;
+.resultCharacter .character-image{
+  object-fit:contain;
+}
 
-  border:4px solid #f1c862;
+.resultInfo{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
 
-  box-shadow:
-    0 9px 0 #896e35,
-    0 20px 40px #0008;
+  padding:10px 25px;
 }
 
 .resultTitle{
-  font-size:clamp(35px,7vw,70px);
+  color:#ffe69a;
+  font-size:clamp(38px,7vw,80px);
   font-weight:1000;
+
+  text-shadow:0 5px 0 #744619;
 }
 
-.resultReason{
-  margin:8px 0 15px;
+.resultSpeech{
+  margin:5px 0 12px;
+  padding:9px 14px;
+
+  color:#34291e;
+  background:#fff8e8;
+
+  border-radius:12px;
+
   font-weight:900;
 }
 
-.resultStats{
-  display:flex;
-  justify-content:center;
-  gap:10px;
+.resultBox{
+  padding:10px;
 
-  margin:10px 0 20px;
+  border:2px solid #c59a50;
+  border-radius:10px;
+
+  background:#101b28e8;
 }
 
-.resultStat{
-  padding:7px 12px;
+.resultRow{
+  display:flex;
+  justify-content:space-between;
 
-  border-radius:10px;
-  background:#eee6d9;
+  padding:5px 0;
 
+  border-bottom:1px solid #ffffff22;
+
+  font-size:11px;
+  font-weight:900;
+}
+
+.resultButtons{
+  display:flex;
+  gap:5px;
+
+  margin-top:12px;
+}
+
+.resultButtons button{
+  flex:1;
+  padding:8px 5px;
+
+  border-radius:9px;
+
+  color:white;
+  background:#211b1a;
+
+  border:1px solid #d4b367;
+
+  font-size:9px;
   font-weight:1000;
 }
 
-
-/* =========================================================
-   ルールモーダル
-========================================================= */
+/* =====================================================
+   モーダル
+===================================================== */
 
 .modal{
   position:absolute;
   inset:0;
-  z-index:500;
+  z-index:999;
 
   display:none;
   align-items:center;
   justify-content:center;
 
-  padding:3%;
-
-  background:#17111fe8;
+  background:#05090ddd;
 }
 
 .modal.on{
   display:flex;
 }
 
-.modalCard{
-  position:relative;
-
-  width:min(900px,94vw);
-  max-height:90vh;
+.modalBox{
+  width:min(700px,90vw);
+  max-height:85vh;
   overflow:auto;
 
-  padding:20px;
+  padding:18px;
 
-  border-radius:20px;
+  border:2px solid #d5af61;
+  border-radius:15px;
 
-  background:#fffaf0;
-  border:3px solid #dcb55f;
+  color:#2e261e;
+  background:#fff3dc;
 }
 
-.modalCard h2{
-  margin:0 0 10px;
+.modalBox h2{
   text-align:center;
+  margin-top:0;
 }
 
-.ruleGrid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
+.modalBox p{
+  font-size:11px;
+  line-height:1.7;
 }
 
-.ruleSection{
-  padding:10px;
+/* =====================================================
+   アニメーション
+===================================================== */
 
-  border-radius:12px;
-
-  background:white;
-  border:1px solid #ded3c6;
+.attackMove{
+  animation:attackMove .28s;
 }
 
-.ruleSection h3{
-  margin:0 0 5px;
-  font-size:13px;
+.hit{
+  animation:hit .28s;
 }
 
-.ruleSection p{
-  margin:3px 0;
-
-  font-size:10px;
-  line-height:1.6;
+@keyframes attackMove{
+  50%{
+    transform:translateX(35px) scale(1.05);
+  }
 }
 
-.closeModal{
+@keyframes hit{
+  40%{
+    transform:translateX(8px);
+    filter:brightness(2);
+  }
+  70%{
+    transform:translateX(-7px);
+  }
+}
+
+/* =====================================================
+   縦画面
+===================================================== */
+
+#rotate{
+  display:none;
   position:absolute;
-  right:10px;
-  top:8px;
+  inset:0;
+  z-index:10000;
 
-  width:40px;
-  height:40px;
+  align-items:center;
+  justify-content:center;
 
-  border-radius:50%;
+  text-align:center;
 
   color:white;
-  background:#30263a;
-
-  font-size:20px;
-  font-weight:1000;
+  background:#0a1019;
 }
 
-
-/* =========================================================
-   小さい画面
-========================================================= */
-
-@media(max-height:500px){
-
-  .titleTop{
-    padding-top:1vh;
+@media(orientation:portrait) and (max-width:900px){
+  #rotate{
+    display:flex;
   }
-
-  .titleLogo{
-    font-size:46px;
-  }
-
-  .titleCatch{
-    margin-top:3px;
-  }
-
-  .titleCharacters{
-    inset:21% 4% 14%;
-  }
-
-  .titleCenterPanel{
-    bottom:14%;
-  }
-
-  .titleDescription{
-    padding:5px 10px;
-  }
-
-  .mainButton{
-    min-height:46px;
-    padding:8px 30px;
-    font-size:16px;
-  }
-
-  .feature{
-    padding:4px 12px;
-  }
-
-  .featureIcon{
-    font-size:25px;
-  }
-
 }
 
 </style>
@@ -1555,1092 +1204,647 @@ button:disabled{
 
 <body>
 
-<div id="game">
+<div id="app" class="game-bg">
 
-  <!-- =====================================================
-       縦画面警告
-  ====================================================== -->
+<div id="rotate">
+  <div>
+    <div style="font-size:60px">📱↻</div>
+    <b>横画面にしてください</b>
+  </div>
+</div>
 
-  <div id="rotateNotice">
-    <div>
-      <div class="rotateIcon">📱↻</div>
-      <div class="rotateTitle">横画面で遊んでください</div>
-      <div class="rotateText">
-        ことばバトル！は横画面専用です
-      </div>
+<!-- =====================================================
+     ① TITLE
+===================================================== -->
+
+<section id="titleScreen" class="screen on">
+
+  <div class="titleScene">
+
+    <div class="titleCharacter hozuki">
+      <img
+        src="./images/hozuki.png"
+        class="character-image"
+        onerror="imageError(this,'鬼灯')">
     </div>
+
+    <div class="titleCharacter nefer">
+      <img
+        src="./images/nefer.png"
+        class="character-image"
+        onerror="imageError(this,'ネフェル')">
+    </div>
+
+    <div class="titleCharacter toma">
+      <img
+        src="./images/toma.png"
+        class="character-image"
+        onerror="imageError(this,'桃真')">
+    </div>
+
   </div>
 
+  <div class="titleShade"></div>
 
-  <!-- =====================================================
-       タイトル
-  ====================================================== -->
+  <div class="titleTopButtons">
 
-  <section id="titleScreen" class="screen on">
+    <button class="iconButton" onclick="openRules()">
+      <b>📖</b>
+      遊び方
+    </button>
 
-    <div class="titleSky"></div>
+    <button class="iconButton">
+      <b>⚙️</b>
+      設定
+    </button>
 
-    <div class="titleMenu">
+    <button class="iconButton">
+      <b>👑</b>
+      ランキング
+    </button>
 
-      <button
-        class="titleMiniButton"
-        onclick="openRules()"
-      >
-        📖 遊び方
-      </button>
+  </div>
 
-      <button
-        class="titleMiniButton"
-        onclick="showSimpleMessage('ランキング機能は今後追加予定です！')"
-      >
-        👑 ランキング
-      </button>
+  <div class="titleCenter">
 
+    <div class="logo">
+      ことばバトル！
     </div>
 
-
-    <div class="titleTop">
-
-      <div class="titleLogoSmall">
-        つくって　つなげて　つよくなる！
-      </div>
-
-      <div class="titleLogo">
-        ことばバトル！
-      </div>
-
-      <div class="titleCatch">
-        キミの言葉が、キャラクターを育てる。
-      </div>
-
+    <div class="logoRibbon">
+      つくって　つなげて　つよくなる！
     </div>
 
+    <div class="titlePaper">
+      キミの言葉が、キャラクターを育てる。<br>
+      ことばで戦う、新しいバトル！
+    </div>
 
-    <div class="titleCharacters">
+    <!--
+      タイトル画面には
+      「ゲームをはじめる」を置かない
+    -->
 
-      <div class="titleCharacter hozuki">
-        <div class="titleCharacterVisual">
-          👹
-        </div>
-        <div class="titleCharacterName">
+    <button
+      class="game-button titleSelect"
+      onclick="openCharacterSelect()">
+      👥 キャラクター選択
+      <small style="display:block;font-size:9px">
+        一緒に戦う仲間を選ぼう！
+      </small>
+    </button>
+
+  </div>
+
+  <div class="titleBottom">
+    <span>📖 言葉で育てる</span>
+    <span>⚔️ 育てた力でバトル</span>
+    <span>👑 最強のことば使いを目指そう！</span>
+  </div>
+
+</section>
+
+<!-- =====================================================
+     ②③ SELECT
+===================================================== -->
+
+<section id="selectScreen" class="screen">
+
+  <div class="selectHeading">
+
+    <h1 id="selectHeading">
+      自分のキャラクターを選択
+    </h1>
+
+    <p id="selectDescription">
+      一緒に戦うキャラクターを選んでください
+    </p>
+
+  </div>
+
+  <div class="cards">
+
+    <!-- 鬼灯 -->
+
+    <button
+      class="charCard hozukiCard"
+      data-character="hozuki"
+      onclick="selectCharacter('hozuki')">
+
+      <div class="cardArt">
+
+        <img
+          src="./images/hozuki.png"
+          class="character-image"
+          onerror="imageError(this,'鬼灯')">
+
+      </div>
+
+      <div class="cardInfo">
+
+        <div class="cardName">
           鬼灯
+          <small>ほおずき</small>
         </div>
+
+        <div class="cardType">
+          ⚔️ 2文字　攻撃特化
+        </div>
+
+        <div class="cardDescription">
+          短い言葉で、一気に攻める！
+        </div>
+
+        <div class="cardStats">
+          <span>HP 100</span>
+          <span>防御 0</span>
+          <span>攻撃 7</span>
+        </div>
+
       </div>
 
-      <div class="titleCharacter nefer">
-        <div class="titleCharacterVisual">
-          👸
-        </div>
-        <div class="titleCharacterName">
+    </button>
+
+    <!-- ネフェル -->
+
+    <button
+      class="charCard neferCard"
+      data-character="nefer"
+      onclick="selectCharacter('nefer')">
+
+      <div class="cardArt">
+
+        <img
+          src="./images/nefer.png"
+          class="character-image"
+          onerror="imageError(this,'ネフェル')">
+
+      </div>
+
+      <div class="cardInfo">
+
+        <div class="cardName">
           ネフェル
         </div>
+
+        <div class="cardType">
+          🛡️ 3文字　防御特化
+        </div>
+
+        <div class="cardDescription">
+          守りを固めて、すべてを耐え抜く。
+        </div>
+
+        <div class="cardStats">
+          <span>HP 100</span>
+          <span>防御 4</span>
+          <span>攻撃 4</span>
+        </div>
+
       </div>
 
-      <div class="titleCharacter toma">
-        <div class="titleCharacterVisual">
-          🍑
-        </div>
-        <div class="titleCharacterName">
+    </button>
+
+    <!-- 桃真 -->
+
+    <button
+      class="charCard tomaCard"
+      data-character="toma"
+      onclick="selectCharacter('toma')">
+
+      <div class="cardArt">
+
+        <img
+          src="./images/toma.png"
+          class="character-image"
+          onerror="imageError(this,'桃真')">
+
+      </div>
+
+      <div class="cardInfo">
+
+        <div class="cardName">
           桃真
-        </div>
-      </div>
-
-    </div>
-
-
-    <div class="titleCenterPanel">
-
-      <div class="titleDescription">
-        10文字から言葉をつくってキャラクターを強化！<br>
-        育てた力で相手と戦う、ことば育成バトル！
-      </div>
-
-      <button
-        class="mainButton titleMainButton"
-        onclick="goCharacterSelect()"
-      >
-        キャラクター選択へ　›
-      </button>
-
-    </div>
-
-
-    <div class="titleBottom">
-
-      <div class="feature">
-
-        <div class="featureIcon">
-          📖
+          <small>とうま</small>
         </div>
 
-        <div>
-          <div class="featureTitle">
-            言葉で育てて
-          </div>
-          <div class="featureText">
-            10文字から言葉をつくりキャラクターを強化！
-          </div>
+        <div class="cardType">
+          💗 4文字以上　HP特化
+        </div>
+
+        <div class="cardDescription">
+          たくさんの言葉で、もっと強くなれるよ！
+        </div>
+
+        <div class="cardStats">
+          <span>HP 100</span>
+          <span>防御 5</span>
+          <span>攻撃 2</span>
         </div>
 
       </div>
 
-
-      <div class="feature">
-
-        <div class="featureIcon">
-          ⚔️
-        </div>
-
-        <div>
-          <div class="featureTitle">
-            バトルで勝負
-          </div>
-          <div class="featureText">
-            育てた力で相手とバトル！
-          </div>
-        </div>
-
-      </div>
-
-
-      <div class="feature">
-
-        <div class="featureIcon">
-          👑
-        </div>
-
-        <div>
-          <div class="featureTitle">
-            最強のことば使いへ
-          </div>
-          <div class="featureText">
-            スキルと必殺技を使いこなそう！
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-
-  </section>
-
-
-  <!-- =====================================================
-       キャラクター選択
-  ====================================================== -->
-
-  <section id="selectScreen" class="screen">
-
-    <button
-      class="backButton"
-      onclick="selectBack()"
-    >
-      ‹ 戻る
     </button>
 
+  </div>
 
-    <div class="selectHeader">
-
-      <h1 id="selectTitle">
-        あなたのキャラクターを選択
-      </h1>
-
-      <p id="selectSub">
-        一緒に戦うキャラクターを選ぼう！
-      </p>
-
-      <div class="pickMode">
-
-        <div
-          id="pickStepPlayer"
-          class="pickStep active"
-        >
-          ① あなた
-        </div>
-
-        <div
-          id="pickStepEnemy"
-          class="pickStep"
-        >
-          ② 対戦相手
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <div class="characterGrid">
-
-      <!-- 鬼灯 -->
-
-      <button
-        class="characterCard hozuki"
-        data-char="hozuki"
-        onclick="pickCharacter('hozuki')"
-      >
-
-        <div class="characterArt">
-          👹
-        </div>
-
-        <div class="characterInfo">
-
-          <div class="characterName">
-            鬼灯
-            <small>（ほおずき）</small>
-          </div>
-
-          <div class="characterType">
-            2文字・攻撃特化
-          </div>
-
-          <div class="characterDesc">
-            短い言葉で、一気に攻める！
-          </div>
-
-          <div class="initialStats">
-            <span>HP 100</span>
-            <span>防御 0</span>
-            <span>攻撃 7</span>
-          </div>
-
-        </div>
-
-      </button>
-
-
-      <!-- ネフェル -->
-
-      <button
-        class="characterCard nefer"
-        data-char="nefer"
-        onclick="pickCharacter('nefer')"
-      >
-
-        <div class="characterArt">
-          👸
-        </div>
-
-        <div class="characterInfo">
-
-          <div class="characterName">
-            ネフェル
-          </div>
-
-          <div class="characterType">
-            3文字・防御特化
-          </div>
-
-          <div class="characterDesc">
-            守りを固めて、すべてを耐え抜く。
-          </div>
-
-          <div class="initialStats">
-            <span>HP 100</span>
-            <span>防御 4</span>
-            <span>攻撃 4</span>
-          </div>
-
-        </div>
-
-      </button>
-
-
-      <!-- 桃真 -->
-
-      <button
-        class="characterCard toma"
-        data-char="toma"
-        onclick="pickCharacter('toma')"
-      >
-
-        <div class="characterArt">
-          🍑
-        </div>
-
-        <div class="characterInfo">
-
-          <div class="characterName">
-            桃真
-            <small>（とうま）</small>
-          </div>
-
-          <div class="characterType">
-            4文字以上・HP特化
-          </div>
-
-          <div class="characterDesc">
-            たくさんの言葉で、もっと強くなれるよ！
-          </div>
-
-          <div class="initialStats">
-            <span>HP 100</span>
-            <span>防御 5</span>
-            <span>攻撃 2</span>
-          </div>
-
-        </div>
-
-      </button>
-
-    </div>
-
-
-    <div class="selectFooter">
-
-      <div></div>
-
-      <button
-        id="selectNextButton"
-        class="mainButton"
-        disabled
-        onclick="confirmCharacterPick()"
-      >
-        このキャラに決定
-      </button>
-
-      <div
-        id="selectStatus"
-        class="selectStatus"
-      >
-      </div>
-
-    </div>
-
-  </section>
-
-
-  <!-- =====================================================
-       VS確認
-  ====================================================== -->
-
-  <section id="readyScreen" class="screen">
+  <div class="selectAction">
 
     <button
-      class="backButton"
-      onclick="showScreen('selectScreen')"
-    >
-      ‹ 選び直す
+      id="selectConfirm"
+      class="game-button"
+      disabled
+      onclick="confirmSelection()">
+      このキャラクターに決定
     </button>
 
-    <div class="readyBox">
+  </div>
 
-      <div class="readyTitle">
-        対戦準備完了！
+  <button class="back" onclick="selectBack()">
+    ‹ 戻る
+  </button>
+
+</section>
+
+<!-- =====================================================
+     ④ READY
+===================================================== -->
+
+<section id="readyScreen" class="screen">
+
+  <div class="readyWrap">
+
+    <div class="readyHeading">
+      ── 対戦準備完了！ ──
+    </div>
+
+    <div class="readyBattle">
+
+      <div class="readySide">
+
+        <img
+          id="readyPlayerImage"
+          class="character-image">
+
+        <div class="readyLabel">
+          <div id="readyPlayerName" class="readyName"></div>
+          <div id="readyPlayerType" class="readyType"></div>
+        </div>
+
       </div>
 
       <div class="readyVs">
-
-        <div class="readyCharacter">
-
-          <div
-            id="readyPlayerEmoji"
-            class="readyEmoji"
-          >
-          </div>
-
-          <div
-            id="readyPlayerName"
-            class="readyName"
-          >
-          </div>
-
-          <div
-            id="readyPlayerType"
-            class="readyType"
-          >
-          </div>
-
-        </div>
-
-
-        <div class="vsText">
-          VS
-        </div>
-
-
-        <div class="readyCharacter">
-
-          <div
-            id="readyEnemyEmoji"
-            class="readyEmoji"
-          >
-          </div>
-
-          <div
-            id="readyEnemyName"
-            class="readyName"
-          >
-          </div>
-
-          <div
-            id="readyEnemyType"
-            class="readyType"
-          >
-          </div>
-
-        </div>
-
+        VS
       </div>
 
+      <div class="readySide">
 
-      <div class="readyActions">
+        <img
+          id="readyEnemyImage"
+          class="character-image">
 
-        <button
-          class="mainButton gold"
-          onclick="startGame()"
-        >
-          ⚔️ ゲームスタート！
-        </button>
-
-      </div>
-
-    </div>
-
-  </section>
-
-
-  <!-- =====================================================
-       ことば作成
-  ====================================================== -->
-
-  <section id="growthScreen" class="screen">
-
-    <div class="growthLayout">
-
-      <div class="growthTop">
-
-        <div class="phaseBadge">
-          📖 ことば作成ターン
-        </div>
-
-        <div
-          id="timer"
-          class="timer"
-        >
-          60.0
-        </div>
-
-        <div
-          id="dictionaryStatus"
-          class="dictionaryBadge"
-        >
-          📚 辞書準備中
-        </div>
-
-      </div>
-
-
-      <!-- 左 -->
-
-      <div class="growthCharacterPanel">
-
-        <div
-          id="growthCharacterArt"
-          class="growthCharacterArt"
-        >
-        </div>
-
-        <div
-          id="growthCharacterName"
-          class="growthCharacterName"
-        >
-        </div>
-
-        <div class="growthStats">
-
-          <div class="statBox">
-            HP
-            <strong id="growthHP">100</strong>
-          </div>
-
-          <div class="statBox">
-            攻撃
-            <strong id="growthATK">0</strong>
-          </div>
-
-          <div class="statBox">
-            防御
-            <strong id="growthDEF">0</strong>
-          </div>
-
-        </div>
-
-        <div
-          id="growthLog"
-          class="growthLog"
-        >
-          ことばを作ってキャラクターを育てよう！
-        </div>
-
-      </div>
-
-
-      <!-- 右 -->
-
-      <div class="wordPanel">
-
-        <div class="wordInputRow">
-
-          <div
-            id="wordBox"
-            class="wordBox"
-          >
-            文字を選んでね
-          </div>
-
-          <button
-            id="carryButton"
-            class="carryButton"
-            disabled
-            onclick="useCarry()"
-          >
-            🔗 引継ぎ文字
-            <strong id="carryChar">―</strong>
-            <br>
-            しりとりBONUS
-          </button>
-
-        </div>
-
-
-        <!-- 候補アシスト -->
-
-        <div class="assistPanel">
-
-          <div class="assistHeader">
-
-            <span>
-              💡 ことば候補アシスト
-            </span>
-
-            <span id="assistInfo">
-              1文字入力すると候補が出ます
-            </span>
-
-          </div>
-
-          <div
-            id="assistCandidates"
-            class="assistCandidates"
-          >
-          </div>
-
-        </div>
-
-
-        <div
-          id="tiles"
-          class="tiles"
-        >
-        </div>
-
-
-        <div class="wordTools">
-
-          <button
-            class="wordTool"
-            onclick="transformLast('dakuten')"
-          >
-            ゛濁点
-          </button>
-
-          <button
-            class="wordTool"
-            onclick="transformLast('handaku')"
-          >
-            ゜半濁点
-          </button>
-
-          <button
-            class="wordTool"
-            onclick="transformLast('small')"
-          >
-            小文字
-          </button>
-
-          <button
-            class="wordTool"
-            onclick="deleteLast()"
-          >
-            ← 1文字消す
-          </button>
-
-          <button
-            id="resetLettersButton"
-            class="wordTool reset"
-            onclick="resetLetters()"
-          >
-            🔄 10文字変更
-          </button>
-
-          <button
-            class="wordTool decision"
-            onclick="submitWord()"
-          >
-            この言葉で決定！
-          </button>
-
-        </div>
-
-
-        <div
-          id="growthMessage"
-          class="growthMessage"
-        >
-          2文字以上の言葉を作ろう！
+        <div class="readyLabel">
+          <div id="readyEnemyName" class="readyName"></div>
+          <div id="readyEnemyType" class="readyType"></div>
         </div>
 
       </div>
 
     </div>
 
-  </section>
+    <div class="readyStart">
 
-
-  <!-- =====================================================
-       ターン切替
-  ====================================================== -->
-
-  <section id="transitionScreen" class="screen">
-
-    <div class="transitionBox">
-
-      <div class="transitionTitle">
-        ⚔️ バトル開始！
-      </div>
-
-      <div>
-        ことばで育てた力で勝負！
-      </div>
-
-      <div class="transitionStats">
-
-        <div class="transitionStat">
-          HP
-          <div id="transitionHP"></div>
-        </div>
-
-        <div class="transitionStat">
-          攻撃
-          <div id="transitionATK"></div>
-        </div>
-
-        <div class="transitionStat">
-          防御
-          <div id="transitionDEF"></div>
-        </div>
-
-      </div>
+      <!--
+        ここで初めて
+        「ゲームをはじめる」が表示される
+      -->
 
       <button
-        class="mainButton gold"
-        onclick="beginBattle()"
-      >
-        バトルへ！
+        class="game-button red"
+        style="min-width:330px"
+        onclick="startGame()">
+        ⚔️ ゲームをはじめる
       </button>
 
     </div>
 
-  </section>
+  </div>
 
+  <button
+    class="back"
+    onclick="backToEnemySelect()">
+    ‹ 選び直す
+  </button>
 
-  <!-- =====================================================
-       バトル
-  ====================================================== -->
+</section>
 
-  <section id="battleScreen" class="screen">
+<!-- =====================================================
+     ⑤ GROWTH
+===================================================== -->
 
-    <div class="battleHeader">
+<section id="growthScreen" class="screen">
 
-      <div class="battlePhase">
-        ⚔️ 攻撃ターン
+  <div class="growthGrid">
+
+    <div class="growthHeader">
+
+      <div class="phaseTitle">
+        📖 ことば作成ターン
       </div>
 
-      <div
-        id="battleTurn"
-        class="battleTurn"
-      >
-        あなたのターン
+      <div id="timer" class="timerCircle">
+        60
       </div>
 
-      <div
-        id="battleRound"
-        class="battleRound"
-      >
-        TURN 1
+      <div id="dictionaryStatus" class="dictStatus">
+        📚 辞書準備中
       </div>
 
     </div>
 
+    <!-- CHARACTER -->
 
-    <div class="arena">
+    <div class="growthHero">
 
-      <!-- PLAYER -->
-
-      <div class="fighter playerFighter">
-
-        <div
-          id="playerBattleArt"
-          class="battleCharacterArt"
-        >
-        </div>
-
-        <div class="fighterInfo">
-
-          <div
-            id="playerBattleName"
-            class="fighterName"
-          >
-          </div>
-
-          <div class="hpBar">
-            <div
-              id="playerHPFill"
-              class="hpFill"
-            >
-            </div>
-          </div>
-
-          <div
-            id="playerBattleStats"
-            class="battleStats"
-          >
-          </div>
-
-          <div
-            id="playerEffects"
-            class="effects"
-          >
-          </div>
-
-        </div>
-
+      <div class="growthHeroImage">
+        <img
+          id="growthImage"
+          class="character-image">
       </div>
 
-
-      <!-- CENTER -->
-
-      <div class="battleCenter">
-
-        <div class="battleVS">
-          VS
-        </div>
-
-        <div
-          id="battleLog"
-          class="battleLog"
-        >
-        </div>
-
+      <div id="speech" class="speech">
+        言葉を作って強くなろう！
       </div>
 
+      <div class="growthHeroStats">
 
-      <!-- ENEMY -->
+        <div id="growthName" class="growthHeroName"></div>
 
-      <div class="fighter enemyFighter">
-
-        <div
-          id="enemyBattleArt"
-          class="battleCharacterArt"
-        >
+        <div class="statLine">
+          <span>HP <b id="growthHP"></b></span>
+          <span>攻撃 <b id="growthATK"></b></span>
+          <span>防御 <b id="growthDEF"></b></span>
         </div>
-
-        <div class="fighterInfo">
-
-          <div
-            id="enemyBattleName"
-            class="fighterName"
-          >
-          </div>
-
-          <div class="hpBar">
-            <div
-              id="enemyHPFill"
-              class="hpFill"
-            >
-            </div>
-          </div>
-
-          <div
-            id="enemyBattleStats"
-            class="battleStats"
-          >
-          </div>
-
-          <div
-            id="enemyEffects"
-            class="effects"
-          >
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <!-- COMMAND -->
-
-      <div class="commands">
-
-        <button
-          id="attackCommand"
-          class="command attack"
-          onclick="playerAction('attack')"
-        >
-          ⚔️ 攻撃
-          <small>攻撃力でダメージ</small>
-        </button>
-
-        <button
-          id="guardCommand"
-          class="command guard"
-          onclick="playerAction('guard')"
-        >
-          🛡️ 防御
-          <small>次の攻撃を軽減</small>
-        </button>
-
-        <button
-          id="skillCommand"
-          class="command skill"
-          onclick="playerAction('skill')"
-        >
-          ✨ 固有技
-          <small id="skillLabel"></small>
-        </button>
-
-        <button
-          id="ultimateCommand"
-          class="command ultimate"
-          onclick="playerAction('ultimate')"
-        >
-          🔥 必殺技
-          <small id="ultimateLabel"></small>
-        </button>
 
       </div>
 
     </div>
 
-  </section>
+    <!-- WORD AREA -->
 
+    <div class="wordArea">
 
-  <!-- =====================================================
-       結果
-  ====================================================== -->
+      <div class="wordTop">
 
-  <section id="resultScreen" class="screen">
+        <div id="wordDisplay" class="wordDisplay">
+          文字を選ぼう！
+        </div>
 
-    <div class="resultCard">
+        <button
+          id="carryButton"
+          class="carry"
+          disabled
+          onclick="useCarry()">
 
-      <div
-        id="resultTitle"
-        class="resultTitle"
-      >
-        WIN!
+          🔗 引継ぎ文字
+          <b id="carryText">―</b><br>
+          しりとりBONUS！
+
+        </button>
+
       </div>
 
-      <div
-        id="resultReason"
-        class="resultReason"
-      >
-      </div>
+      <div class="assist">
 
-      <div class="resultStats">
-
-        <div class="resultStat">
-          使用した言葉
-          <div id="resultWords"></div>
+        <div class="assistTitle">
+          💡 ことば候補
+          <span id="assistInfo">
+            1文字入力すると表示
+          </span>
         </div>
 
-        <div class="resultStat">
-          最大HP
-          <div id="resultHP"></div>
-        </div>
-
-        <div class="resultStat">
-          攻撃
-          <div id="resultATK"></div>
-        </div>
-
-        <div class="resultStat">
-          防御
-          <div id="resultDEF"></div>
+        <div
+          id="assistList"
+          class="assistList">
         </div>
 
       </div>
 
-      <button
-        class="mainButton"
-        onclick="returnTitle()"
-      >
-        タイトルへ戻る
-      </button>
+      <div id="kanaGrid" class="kanaGrid"></div>
+
+      <div class="tools">
+
+        <button class="tool" onclick="changeLast('dakuten')">
+          ゛濁点
+        </button>
+
+        <button class="tool" onclick="changeLast('handaku')">
+          ゜半濁点
+        </button>
+
+        <button class="tool" onclick="changeLast('small')">
+          小文字
+        </button>
+
+        <button class="tool" onclick="deleteLast()">
+          ← 消す
+        </button>
+
+        <button
+          id="shuffleButton"
+          class="tool shuffle"
+          onclick="shuffleLetters()">
+          ↻ シャッフル
+        </button>
+
+        <button
+          class="tool submit"
+          onclick="submitWord()">
+          決定
+        </button>
+
+      </div>
+
+      <div id="message" class="message">
+        2文字以上の言葉を作ろう！
+      </div>
 
     </div>
 
-  </section>
+  </div>
 
+</section>
 
-  <!-- =====================================================
-       ルール
-  ====================================================== -->
+<!-- =====================================================
+     ⑥ BATTLE
+===================================================== -->
 
-  <div
-    id="rulesModal"
-    class="modal"
-  >
+<section id="battleScreen" class="screen">
 
-    <div class="modalCard">
+  <div class="battleTop">
 
-      <button
-        class="closeModal"
-        onclick="closeRules()"
-      >
-        ×
-      </button>
+    <div class="battleHUD">
 
-      <h2>
-        📖 ことばバトル！ 遊び方
-      </h2>
+      <div id="battlePlayerName" class="hudName"></div>
 
-      <div class="ruleGrid">
+      <div class="hpBar">
+        <div id="playerHPBar" class="hpFill"></div>
+      </div>
 
-        <div class="ruleSection">
+      <small id="playerStats"></small>
 
-          <h3>
-            ① ことばを作る
-          </h3>
+    </div>
 
-          <p>
-            60秒以内に、表示された10文字を使って
-            2文字以上の言葉を作ります。
-          </p>
+    <div id="battleTurnText" class="battleTurn">
+      あなたのターン
+    </div>
 
-          <p>
-            同じ文字は何度でも使用できます。
-          </p>
+    <div class="battleHUD enemy">
 
-          <p>
-            一度成立した言葉は、その育成ターンでは
-            もう一度使用できません。
-          </p>
+      <div id="battleEnemyName" class="hudName"></div>
 
+      <div class="hpBar">
+        <div id="enemyHPBar" class="hpFill"></div>
+      </div>
+
+      <small id="enemyStats"></small>
+
+    </div>
+
+  </div>
+
+  <div class="battleArena">
+
+    <div class="battleChar">
+
+      <img
+        id="battlePlayerImage"
+        class="character-image">
+
+    </div>
+
+    <div class="battleMiddle">
+
+      <div class="vs">
+        VS
+      </div>
+
+      <div id="damageText" class="damageText"></div>
+
+      <div id="battleLog" class="battleLog"></div>
+
+    </div>
+
+    <div class="battleChar">
+
+      <img
+        id="battleEnemyImage"
+        class="character-image">
+
+    </div>
+
+  </div>
+
+  <div class="commands">
+
+    <button
+      id="attackButton"
+      class="command attack"
+      onclick="playerCommand('attack')">
+      ⚔️ 攻撃
+      <small>通常攻撃</small>
+    </button>
+
+    <button
+      id="guardButton"
+      class="command guard"
+      onclick="playerCommand('guard')">
+      🛡️ 防御
+      <small>ダメージ軽減</small>
+    </button>
+
+    <button
+      id="skillButton"
+      class="command skill"
+      onclick="playerCommand('skill')">
+      ✨ 固有技
+      <small id="skillText"></small>
+    </button>
+
+    <button
+      id="ultimateButton"
+      class="command ultimate"
+      onclick="playerCommand('ultimate')">
+      🔥 必殺技
+      <small id="ultimateText"></small>
+    </button>
+
+  </div>
+
+</section>
+
+<!-- =====================================================
+     ⑦ RESULT
+===================================================== -->
+
+<section id="resultScreen" class="screen">
+
+  <div class="resultLayout">
+
+    <div class="resultCharacter">
+
+      <img
+        id="resultImage"
+        class="character-image">
+
+    </div>
+
+    <div class="resultInfo">
+
+      <div id="resultTitle" class="resultTitle">
+        勝利！
+      </div>
+
+      <div id="resultSpeech" class="resultSpeech">
+      </div>
+
+      <div class="resultBox">
+
+        <div class="resultRow">
+          <span>作った言葉数</span>
+          <b id="resultWords"></b>
         </div>
 
-
-        <div class="ruleSection">
-
-          <h3>
-            ② 言葉の長さで成長
-          </h3>
-
-          <p>
-            2文字：攻撃力アップ
-          </p>
-
-          <p>
-            3文字：防御力アップ＋攻撃+1
-          </p>
-
-          <p>
-            4文字：HPアップ＋攻撃+1
-          </p>
-
-          <p>
-            5文字以上：HP・攻撃・防御すべてアップ
-          </p>
-
+        <div class="resultRow">
+          <span>最大HP</span>
+          <b id="resultHP"></b>
         </div>
 
-
-        <div class="ruleSection">
-
-          <h3>
-            ③ 引継ぎ文字
-          </h3>
-
-          <p>
-            成立した言葉の最後の1文字を
-            次の言葉の先頭に使用できます。
-          </p>
-
-          <p>
-            しりとりが成立するとキャラクターごとの
-            BONUSが発生します。
-          </p>
-
-          <p>
-            鬼灯：攻撃+2<br>
-            ネフェル：防御+1<br>
-            桃真：HP+5
-          </p>
-
+        <div class="resultRow">
+          <span>攻撃力</span>
+          <b id="resultATK"></b>
         </div>
 
-
-        <div class="ruleSection">
-
-          <h3>
-            ④ 候補アシスト
-          </h3>
-
-          <p>
-            1文字入力すると辞書から候補を表示します。
-          </p>
-
-          <p>
-            2文字語は100%表示。
-          </p>
-
-          <p>
-            3文字以上では最初の2文字を表示し、
-            3文字目以降は各文字80%の確率で表示されます。
-          </p>
-
+        <div class="resultRow">
+          <span>防御力</span>
+          <b id="resultDEF"></b>
         </div>
 
+      </div>
 
-        <div class="ruleSection">
+      <div class="resultButtons">
 
-          <h3>
-            ⑤ キャラクター
-          </h3>
+        <button onclick="rematch()">
+          もう一度戦う
+        </button>
 
-          <p>
-            鬼灯：2文字・攻撃特化
-          </p>
+        <button onclick="openCharacterSelect()">
+          キャラクター選択に戻る
+        </button>
 
-          <p>
-            ネフェル：3文字・防御特化
-          </p>
-
-          <p>
-            桃真：4文字以上・HP特化
-          </p>
-
-        </div>
-
-
-        <div class="ruleSection">
-
-          <h3>
-            ⑥ バトル
-          </h3>
-
-          <p>
-            ことば作成終了後、
-            育てたステータスでAIと戦います。
-          </p>
-
-          <p>
-            攻撃・防御・固有技・必殺技を
-            使い分けて勝利を目指します。
-          </p>
-
-        </div>
+        <button onclick="returnTitle()">
+          タイトルに戻る
+        </button>
 
       </div>
 
@@ -2648,153 +1852,191 @@ button:disabled{
 
   </div>
 
+</section>
 
-  <!-- 簡易メッセージ -->
+<!-- =====================================================
+     RULE
+===================================================== -->
 
-  <div
-    id="messageModal"
-    class="modal"
-    onclick="closeSimpleMessage()"
-  >
+<div id="ruleModal" class="modal">
 
-    <div
-      class="modalCard"
-      style="max-width:430px;text-align:center"
-    >
+  <div class="modalBox">
 
-      <h2 id="simpleMessage">
-      </h2>
+    <h2>
+      📖 遊び方
+    </h2>
 
+    <p>
+      <b>① キャラクターを選択</b><br>
+      鬼灯・ネフェル・桃真から自分のキャラクターを選び、
+      次に対戦相手を選択します。
+    </p>
+
+    <p>
+      <b>② 60秒で言葉を作る</b><br>
+      表示された10文字を使って2文字以上の言葉を作ります。
+      同じ表示文字は何度でも使用できます。
+    </p>
+
+    <p>
+      <b>③ 言葉で強化</b><br>
+      2文字＝攻撃、3文字＝防御、4文字＝HP、
+      5文字以上＝全ステータスが強化されます。
+    </p>
+
+    <p>
+      <b>④ しりとりBONUS</b><br>
+      成立した言葉の最後の1文字を次の言葉へ引継げます。
+    </p>
+
+    <p>
+      <b>⑤ バトル</b><br>
+      育てたステータスで、
+      攻撃・防御・固有技・必殺技を使って戦います。
+    </p>
+
+    <div style="text-align:center">
       <button
-        class="subButton"
-        onclick="closeSimpleMessage()"
-      >
-        OK
+        class="game-button"
+        onclick="closeRules()">
+        閉じる
       </button>
-
     </div>
 
   </div>
 
 </div>
 
+</div>
 
 <script>
-
-(() => {
-
+(()=>{
 "use strict";
 
-
-/* =========================================================
+/* =====================================================
    キャラクター
-========================================================= */
+===================================================== */
 
-const CHARACTERS = {
+const CHARACTERS={
 
   hozuki:{
     id:"hozuki",
     name:"鬼灯",
     reading:"ほおずき",
-    emoji:"👹",
+
+    image:"./images/hozuki.png",
+
     type:"2文字・攻撃特化",
 
-    desc:"短い言葉で、一気に攻める！",
+    description:
+      "短い言葉で、一気に攻める！",
 
     hp:100,
     atk:7,
     def:0,
 
     skill:"二連撃",
-    ultimate:"鬼神化"
-  },
+    ultimate:"鬼神化",
 
+    speech:{
+      growth:"さあ、言葉で攻めるわよ！",
+      win:"言葉は刃となり、敵を討つ！",
+      lose:"まだ……もっと強くなれる！"
+    }
+  },
 
   nefer:{
     id:"nefer",
     name:"ネフェル",
-    reading:"ねふぇる",
-    emoji:"👸",
+
+    image:"./images/nefer.png",
+
     type:"3文字・防御特化",
 
-    desc:"守りを固めて、すべてを耐え抜く。",
+    description:
+      "守りを固めて、すべてを耐え抜く。",
 
     hp:100,
     atk:4,
     def:4,
 
     skill:"三角結界",
-    ultimate:"魅了"
-  },
+    ultimate:"魅了",
 
+    speech:{
+      growth:"言葉を重ね、守りを築きましょう。",
+      win:"すべてを耐え抜きました。",
+      lose:"この結果も、次への知恵となります。"
+    }
+  },
 
   toma:{
     id:"toma",
     name:"桃真",
-    reading:"とうま",
-    emoji:"🍑",
+
+    image:"./images/toma.png",
+
     type:"4文字以上・HP特化",
 
-    desc:"たくさんの言葉で、もっと強くなれるよ！",
+    description:
+      "たくさんの言葉で、もっと強くなれるよ！",
 
     hp:100,
     atk:2,
     def:5,
 
     skill:"黍団子",
-    ultimate:"四人共闘"
+    ultimate:"四人共闘",
+
+    speech:{
+      growth:"みんな、一緒にいっぱい作ろう！",
+      win:"みんなで力を合わせたからだよ！",
+      lose:"次はみんなで勝とうね！"
+    }
   }
 
 };
 
-
-/* =========================================================
+/* =====================================================
    状態
-========================================================= */
+===================================================== */
 
-let pickPhase="player";
+let selectPhase="player";
+let selectedTemp=null;
 
-let tempPick=null;
-
-let playerChoice=null;
-let enemyChoice=null;
+let playerID=null;
+let enemyID=null;
 
 let player=null;
 let enemy=null;
 
 let currentWord="";
-
 let letters=[];
+
+let carry="";
+let carryWasUsed=false;
 
 let usedWords=new Set();
 
-let carryCharacter="";
-let carryUsed=false;
-let carrySource="";
-
-let growthTime=60;
-let growthTimer=null;
-
-let resetCooldown=false;
-
 let dictionaryReady=false;
+let dictionaryWords=new Set();
+let prefixIndex=new Map();
 
-const dictionaryWords=new Set();
-
-const prefixIndex=new Map();
-
-const maskCache=new Map();
-
+let maskCache=new Map();
 let boardID=0;
 
-let battleTurn=1;
+let timerHandle=null;
+let growthStart=0;
+
+let shuffleLocked=false;
+
 let playerTurn=true;
 let battleFinished=false;
+let battleTurn=1;
 
-
-/* =========================================================
-   単語リスト
-========================================================= */
+/* =====================================================
+   辞書設定
+===================================================== */
 
 const BLOCK_WORDS=new Set([
   "まっく",
@@ -2802,9 +2044,7 @@ const BLOCK_WORDS=new Set([
 ]);
 
 const ALLOW_WORDS=new Set([
-
   "まくどなるど",
-
   "とうきょう",
   "きょうと",
   "おおさか",
@@ -2813,444 +2053,346 @@ const ALLOW_WORDS=new Set([
   "よこはま",
   "さっぽろ",
   "ふくおか",
-
   "ほっかいどう",
   "おきなわ",
   "にほん",
-
   "でぃずにーらんど",
   "ゆにばーさるすたじおじゃぱん"
-
 ]);
-
-
-/* =========================================================
-   DOM
-========================================================= */
 
 const $=id=>document.getElementById(id);
 
+/* =====================================================
+   画像エラー
+===================================================== */
 
-/* =========================================================
-   画面
-========================================================= */
+window.imageError=function(img,name){
 
-window.showScreen=function(id){
+  img.style.display="none";
+
+  const parent=img.parentElement;
+
+  if(
+    parent &&
+    !parent.querySelector(".imageFallback")
+  ){
+
+    const div=document.createElement("div");
+
+    div.className="imageFallback";
+    div.style.display="flex";
+    div.textContent=name;
+
+    parent.appendChild(div);
+  }
+};
+
+/* =====================================================
+   SCREEN
+===================================================== */
+
+function showScreen(id){
 
   document
     .querySelectorAll(".screen")
-    .forEach(x=>x.classList.remove("on"));
+    .forEach(el=>el.classList.remove("on"));
 
   $(id).classList.add("on");
-};
+}
 
+/* =====================================================
+   SELECT
+===================================================== */
 
-window.goCharacterSelect=function(){
+window.openCharacterSelect=function(){
 
-  pickPhase="player";
+  selectPhase="player";
 
-  tempPick=null;
-  playerChoice=null;
-  enemyChoice=null;
+  selectedTemp=null;
+  playerID=null;
+  enemyID=null;
 
-  updatePickUI();
+  updateSelectScreen();
 
   showScreen("selectScreen");
 };
 
+window.selectCharacter=function(id){
 
-window.selectBack=function(){
-
-  if(pickPhase==="enemy"){
-
-    pickPhase="player";
-    tempPick=playerChoice;
-
-    updatePickUI();
-
-    return;
-  }
-
-  showScreen("titleScreen");
-};
-
-
-/* =========================================================
-   キャラ選択
-========================================================= */
-
-window.pickCharacter=function(id){
-
-  tempPick=id;
+  selectedTemp=id;
 
   document
-    .querySelectorAll(".characterCard")
+    .querySelectorAll(".charCard")
     .forEach(card=>{
 
       card.classList.toggle(
         "selected",
-        card.dataset.char===id
+        card.dataset.character===id
       );
 
     });
 
-  $("selectNextButton").disabled=false;
-
-  const c=CHARACTERS[id];
-
-  $("selectStatus").textContent=
-    `${c.name}を選択中`;
+  $("selectConfirm").disabled=false;
 };
 
+window.confirmSelection=function(){
 
-window.confirmCharacterPick=function(){
+  if(!selectedTemp){
+    return;
+  }
 
-  if(!tempPick) return;
+  if(selectPhase==="player"){
 
-  if(pickPhase==="player"){
+    playerID=selectedTemp;
 
-    playerChoice=tempPick;
+    selectedTemp=null;
+    selectPhase="enemy";
 
-    pickPhase="enemy";
-    tempPick=null;
-
-    updatePickUI();
+    updateSelectScreen();
 
     return;
   }
 
-  enemyChoice=tempPick;
+  enemyID=selectedTemp;
 
-  prepareReadyScreen();
+  setupReady();
 
   showScreen("readyScreen");
 };
 
-
-function updatePickUI(){
+function updateSelectScreen(){
 
   document
-    .querySelectorAll(".characterCard")
+    .querySelectorAll(".charCard")
     .forEach(card=>card.classList.remove("selected"));
 
-  $("selectNextButton").disabled=true;
+  $("selectConfirm").disabled=true;
 
-  $("selectStatus").textContent="";
+  if(selectPhase==="player"){
 
-  if(pickPhase==="player"){
+    $("selectHeading").textContent=
+      "自分のキャラクターを選択";
 
-    $("selectTitle").textContent=
-      "あなたのキャラクターを選択";
+    $("selectDescription").textContent=
+      "一緒に戦うキャラクターを選んでください";
 
-    $("selectSub").textContent=
-      "一緒に戦うキャラクターを選ぼう！";
-
-    $("pickStepPlayer").classList.add("active");
-    $("pickStepEnemy").classList.remove("active");
-
-    $("selectNextButton").textContent=
-      "このキャラに決定";
+    $("selectConfirm").textContent=
+      "このキャラクターに決定";
 
   }else{
 
-    $("selectTitle").textContent=
+    $("selectHeading").textContent=
       "対戦相手を選択";
 
-    $("selectSub").textContent=
-      "戦いたいAIキャラクターを選ぼう！";
+    $("selectDescription").textContent=
+      "どの相手と戦うか選んでください";
 
-    $("pickStepPlayer").classList.remove("active");
-    $("pickStepEnemy").classList.add("active");
-
-    $("selectNextButton").textContent=
-      "対戦相手に決定";
+    $("selectConfirm").textContent=
+      "この相手に決定";
   }
-
 }
 
+window.selectBack=function(){
 
-/* =========================================================
+  if(selectPhase==="enemy"){
+
+    selectPhase="player";
+    selectedTemp=null;
+
+    updateSelectScreen();
+
+  }else{
+
+    showScreen("titleScreen");
+  }
+};
+
+window.backToEnemySelect=function(){
+
+  selectPhase="enemy";
+  selectedTemp=null;
+
+  updateSelectScreen();
+
+  showScreen("selectScreen");
+};
+
+/* =====================================================
    READY
-========================================================= */
+===================================================== */
 
-function prepareReadyScreen(){
+function setupReady(){
 
-  const p=CHARACTERS[playerChoice];
-  const e=CHARACTERS[enemyChoice];
+  const p=CHARACTERS[playerID];
+  const e=CHARACTERS[enemyID];
 
-  $("readyPlayerEmoji").textContent=p.emoji;
+  $("readyPlayerImage").src=p.image;
+  $("readyEnemyImage").src=e.image;
+
   $("readyPlayerName").textContent=p.name;
-  $("readyPlayerType").textContent=p.type;
-
-  $("readyEnemyEmoji").textContent=e.emoji;
   $("readyEnemyName").textContent=e.name;
+
+  $("readyPlayerType").textContent=p.type;
   $("readyEnemyType").textContent=e.type;
 }
 
+/* =====================================================
+   FIGHTER
+===================================================== */
 
-/* =========================================================
-   ゲーム開始
-========================================================= */
+function makeFighter(c){
 
-window.startGame=function(){
+  return{
+    id:c.id,
+    name:c.name,
+    image:c.image,
 
-  const p=CHARACTERS[playerChoice];
-  const e=CHARACTERS[enemyChoice];
+    hp:c.hp,
+    maxHp:c.hp,
 
-  player=createFighter(p,false);
-  enemy=createFighter(e,true);
+    atk:c.atk,
+    def:c.def,
 
-  usedWords=new Set();
-
-  currentWord="";
-
-  carryCharacter="";
-  carrySource="";
-  carryUsed=false;
-
-  growthTime=60;
-
-  boardID++;
-
-  maskCache.clear();
-
-  generateLetters();
-
-  setupGrowthUI();
-
-  showScreen("growthScreen");
-
-  startGrowthTimer();
-};
-
-
-function createFighter(base,isAI){
-
-  return {
-
-    id:base.id,
-    name:base.name,
-    emoji:base.emoji,
-
-    hp:base.hp,
-    maxHp:base.hp,
-
-    atk:base.atk,
-    def:base.def,
-
-    baseDef:base.def,
-
-    isAI,
-
-    guarding:false,
+    guard:false,
 
     skillUses:0,
     skillCooldown:0,
+    usedSkill:false,
 
-    usedNormalSkill:false,
-
-    hasFivePlus:false,
-
+    fivePlus:false,
     ultimateUsed:false,
 
     /* 鬼灯 */
-
     kishinAttack:false,
     kishinDefense:false,
 
     /* ネフェル */
-
-    triangleTurns:0,
-    charmTurns:0,
-
+    triangle:0,
+    charm:0,
     receivedHits:0,
 
     /* 桃真 */
+    tomaAttackTurns:0,
 
-    tomaAtkTurns:0,
-
-    enemyDefDownHits:0,
-    enemyDefDownAmount:0
-
+    defenseDownHits:0
   };
 }
 
+/* =====================================================
+   START
+===================================================== */
 
-/* =========================================================
-   辞書
-========================================================= */
+window.startGame=function(){
 
-async function loadWordDictionary(){
+  player=makeFighter(
+    CHARACTERS[playerID]
+  );
 
-  const badge=$("dictionaryStatus");
+  enemy=makeFighter(
+    CHARACTERS[enemyID]
+  );
 
-  try{
+  usedWords=new Set();
 
-    badge.textContent="📚 辞書読込中";
+  carry="";
+  carryWasUsed=false;
 
-    const res=await fetch(
-      "./jmdict-common.zip",
-      {cache:"force-cache"}
-    );
+  currentWord="";
 
-    if(!res.ok){
-      throw new Error("ZIP not found");
-    }
+  boardID=0;
+  maskCache.clear();
 
-    const buffer=await res.arrayBuffer();
+  generateLetters();
 
-    const zip=await JSZip.loadAsync(buffer);
+  setupGrowth();
 
-    const jsonFile=
-      Object.values(zip.files)
-      .find(
-        f=>
-          !f.dir &&
-          f.name.toLowerCase().endsWith(".json")
-      );
+  showScreen("growthScreen");
 
-    if(!jsonFile){
-      throw new Error("JSON not found");
-    }
+  startTimer();
+};
 
-    const text=await jsonFile.async("string");
+/* =====================================================
+   GROWTH UI
+===================================================== */
 
-    const data=JSON.parse(text);
+function setupGrowth(){
 
-    const entries=
-      Array.isArray(data)
-      ? data
-      : (
-          data.words ||
-          data.entries ||
-          []
-        );
+  const c=CHARACTERS[player.id];
 
-    let count=0;
+  $("growthImage").src=c.image;
+  $("growthName").textContent=c.name;
 
-    for(const entry of entries){
+  $("speech").textContent=
+    c.speech.growth;
 
-      const kanaList=
-        entry.kana ||
-        entry.reading ||
-        [];
+  updateGrowthStats();
 
-      for(const item of kanaList){
+  updateCarry();
 
-        let reading="";
-
-        if(typeof item==="string"){
-          reading=item;
-        }else{
-          reading=
-            item.text ||
-            item.value ||
-            "";
-        }
-
-        reading=normalizeKana(reading);
-
-        if(
-          reading.length>=2 &&
-          /^[ぁ-ゖー]+$/.test(reading)
-        ){
-
-          if(!dictionaryWords.has(reading)){
-
-            dictionaryWords.add(reading);
-
-            addToPrefixIndex(reading);
-
-            count++;
-          }
-        }
-      }
-    }
-
-
-    for(const w of ALLOW_WORDS){
-
-      if(!dictionaryWords.has(w)){
-        dictionaryWords.add(w);
-        addToPrefixIndex(w);
-      }
-    }
-
-
-    dictionaryReady=true;
-
-    badge.textContent=
-      `📚 辞書OK ${count.toLocaleString()}語`;
-
-    updateAssist();
-
-  }catch(err){
-
-    console.error(err);
-
-    badge.textContent=
-      "⚠️ 辞書未読込";
-
-    dictionaryReady=false;
-  }
-
+  drawWord();
 }
 
+function updateGrowthStats(){
 
-function addToPrefixIndex(word){
+  $("growthHP").textContent=
+    player.maxHp;
 
-  const first=word[0];
+  $("growthATK").textContent=
+    player.atk;
 
-  if(!prefixIndex.has(first)){
-    prefixIndex.set(first,[]);
-  }
-
-  prefixIndex.get(first).push(word);
+  $("growthDEF").textContent=
+    player.def;
 }
 
+/* =====================================================
+   TIMER
+===================================================== */
 
-function normalizeKana(text){
+function startTimer(){
 
-  return String(text)
-    .normalize("NFKC")
-    .replace(
-      /[\u30a1-\u30f6]/g,
-      ch=>
-        String.fromCharCode(
-          ch.charCodeAt(0)-0x60
-        )
-    );
+  clearInterval(timerHandle);
+
+  growthStart=performance.now();
+
+  timerHandle=setInterval(()=>{
+
+    const elapsed=
+      (performance.now()-growthStart)/1000;
+
+    const left=
+      Math.max(0,60-elapsed);
+
+    $("timer").textContent=
+      Math.ceil(left);
+
+    if(left<=0){
+
+      clearInterval(timerHandle);
+
+      timerHandle=null;
+
+      finishGrowth();
+    }
+
+  },100);
 }
 
+/* =====================================================
+   LETTER
+===================================================== */
 
-/* =========================================================
-   10文字
-========================================================= */
-
-const BASE_KANA=[
-
+const BASE=[
   "あ","い","う","え","お",
-
   "か","き","く","け","こ",
-
   "さ","し","す","せ","そ",
-
   "た","ち","つ","て","と",
-
   "な","に","ぬ","ね","の",
-
   "は","ひ","ふ","へ","ほ",
-
   "ま","み","む","め","も",
-
   "や","ゆ","よ",
-
   "ら","り","る","れ","ろ",
-
   "わ"
-
 ];
-
 
 function generateLetters(){
 
@@ -3259,9 +2401,9 @@ function generateLetters(){
   for(let i=0;i<10;i++){
 
     letters.push(
-      BASE_KANA[
+      BASE[
         Math.floor(
-          Math.random()*BASE_KANA.length
+          Math.random()*BASE.length
         )
       ]
     );
@@ -3272,26 +2414,24 @@ function generateLetters(){
   maskCache.clear();
 
   drawLetters();
-
   updateAssist();
 }
 
-
 function drawLetters(){
 
-  const box=$("tiles");
+  const box=$("kanaGrid");
 
   box.innerHTML="";
 
   letters.forEach(char=>{
 
-    const btn=document.createElement("button");
+    const button=
+      document.createElement("button");
 
-    btn.className="kanaTile";
+    button.className="kana";
+    button.textContent=char;
 
-    btn.textContent=char;
-
-    btn.onclick=()=>{
+    button.onclick=()=>{
 
       if(currentWord.length>=12){
         return;
@@ -3302,111 +2442,61 @@ function drawLetters(){
       drawWord();
     };
 
-    box.appendChild(btn);
-
+    box.appendChild(button);
   });
 }
 
-
-/* =========================================================
-   文字入力
-========================================================= */
-
 function drawWord(){
 
-  $("wordBox").textContent=
-    currentWord || "文字を選んでね";
+  $("wordDisplay").textContent=
+    currentWord || "文字を選ぼう！";
 
   updateAssist();
 }
 
+/* =====================================================
+   TRANSFORM
+===================================================== */
 
-window.deleteLast=function(){
-
-  if(!currentWord) return;
-
-  currentWord=
-    currentWord.slice(0,-1);
-
-  drawWord();
+const DAKUTEN={
+  か:"が",き:"ぎ",く:"ぐ",け:"げ",こ:"ご",
+  さ:"ざ",し:"じ",す:"ず",せ:"ぜ",そ:"ぞ",
+  た:"だ",ち:"ぢ",つ:"づ",て:"で",と:"ど",
+  は:"ば",ひ:"び",ふ:"ぶ",へ:"べ",ほ:"ぼ"
 };
 
-
-const DAKUTEN_MAP={
-
-  "か":"が",
-  "き":"ぎ",
-  "く":"ぐ",
-  "け":"げ",
-  "こ":"ご",
-
-  "さ":"ざ",
-  "し":"じ",
-  "す":"ず",
-  "せ":"ぜ",
-  "そ":"ぞ",
-
-  "た":"だ",
-  "ち":"ぢ",
-  "つ":"づ",
-  "て":"で",
-  "と":"ど",
-
-  "は":"ば",
-  "ひ":"び",
-  "ふ":"ぶ",
-  "へ":"べ",
-  "ほ":"ぼ"
-
+const HANDAKU={
+  は:"ぱ",ひ:"ぴ",ふ:"ぷ",へ:"ぺ",ほ:"ぽ",
+  ば:"ぱ",び:"ぴ",ぶ:"ぷ",べ:"ぺ",ぼ:"ぽ"
 };
 
-
-const HANDAKU_MAP={
-
-  "は":"ぱ",
-  "ひ":"ぴ",
-  "ふ":"ぷ",
-  "へ":"ぺ",
-  "ほ":"ぽ",
-
-  "ば":"ぱ",
-  "び":"ぴ",
-  "ぶ":"ぷ",
-  "べ":"ぺ",
-  "ぼ":"ぽ"
-
+const SMALL={
+  や:"ゃ",
+  ゆ:"ゅ",
+  よ:"ょ",
+  つ:"っ"
 };
 
+window.changeLast=function(type){
 
-const SMALL_MAP={
+  if(!currentWord){
+    return;
+  }
 
-  "や":"ゃ",
-  "ゆ":"ゅ",
-  "よ":"ょ",
-  "つ":"っ"
-
-};
-
-
-window.transformLast=function(type){
-
-  if(!currentWord) return;
-
-  const last=
-    currentWord.slice(-1);
+  const last=currentWord.slice(-1);
 
   let map;
 
   if(type==="dakuten"){
-    map=DAKUTEN_MAP;
+    map=DAKUTEN;
   }
 
   if(type==="handaku"){
-    map=HANDAKU_MAP;
+    map=HANDAKU;
   }
 
   if(type==="small"){
-    map=SMALL_MAP;
+    map=SMALL;
   }
 
   if(!map[last]){
@@ -3421,49 +2511,276 @@ window.transformLast=function(type){
   drawWord();
 };
 
+window.deleteLast=function(){
 
-/* =========================================================
-   盤面から作れるか
-========================================================= */
+  currentWord=
+    currentWord.slice(0,-1);
 
-function baseVariants(base){
+  drawWord();
+};
 
-  const set=new Set([base]);
+/* =====================================================
+   CARRY
+===================================================== */
 
-  if(DAKUTEN_MAP[base]){
-    set.add(DAKUTEN_MAP[base]);
-  }
+function updateCarry(){
 
-  if(HANDAKU_MAP[base]){
-    set.add(HANDAKU_MAP[base]);
-  }
+  $("carryText").textContent=
+    carry || "―";
 
-  if(SMALL_MAP[base]){
-    set.add(SMALL_MAP[base]);
-  }
-
-  return set;
+  $("carryButton").disabled=
+    !carry ||
+    carryWasUsed;
 }
 
+window.useCarry=function(){
 
-function canMakeFromBoard(word){
-
-  const possible=new Set();
-
-  for(const b of letters){
-
-    for(const v of baseVariants(b)){
-      possible.add(v);
-    }
+  if(
+    !carry ||
+    carryWasUsed
+  ){
+    return;
   }
 
-  if(carryCharacter){
-    possible.add(carryCharacter);
+  currentWord=
+    carry+currentWord;
+
+  carryWasUsed=true;
+
+  updateCarry();
+  drawWord();
+
+  message(
+    `🔗「${carry}」を引継ぎ！`
+  );
+};
+
+/* =====================================================
+   SHUFFLE
+===================================================== */
+
+window.shuffleLetters=function(){
+
+  if(shuffleLocked){
+    return;
+  }
+
+  shuffleLocked=true;
+
+  generateLetters();
+
+  const btn=$("shuffleButton");
+
+  btn.disabled=true;
+
+  let sec=5;
+
+  btn.textContent=
+    `あと${sec}秒`;
+
+  const handle=setInterval(()=>{
+
+    sec--;
+
+    if(sec<=0){
+
+      clearInterval(handle);
+
+      shuffleLocked=false;
+
+      btn.disabled=false;
+
+      btn.textContent=
+        "↻ シャッフル";
+
+    }else{
+
+      btn.textContent=
+        `あと${sec}秒`;
+    }
+
+  },1000);
+};
+
+/* =====================================================
+   DICTIONARY
+===================================================== */
+
+function normalizeKana(str){
+
+  return String(str)
+    .normalize("NFKC")
+    .replace(
+      /[\u30A1-\u30F6]/g,
+      ch=>
+        String.fromCharCode(
+          ch.charCodeAt(0)-0x60
+        )
+    );
+}
+
+async function loadDictionary(){
+
+  try{
+
+    $("dictionaryStatus").textContent=
+      "📚 辞書読込中";
+
+    const response=
+      await fetch(
+        "./jmdict-common.zip",
+        {cache:"force-cache"}
+      );
+
+    if(!response.ok){
+      throw new Error();
+    }
+
+    const buffer=
+      await response.arrayBuffer();
+
+    const zip=
+      await JSZip.loadAsync(buffer);
+
+    const file=
+      Object.values(zip.files)
+      .find(
+        x=>
+          !x.dir &&
+          x.name.toLowerCase().endsWith(".json")
+      );
+
+    if(!file){
+      throw new Error();
+    }
+
+    const data=
+      JSON.parse(
+        await file.async("string")
+      );
+
+    const entries=
+      Array.isArray(data)
+        ? data
+        : (
+            data.words ||
+            data.entries ||
+            []
+          );
+
+    let count=0;
+
+    for(const entry of entries){
+
+      const kana=
+        entry.kana ||
+        entry.reading ||
+        [];
+
+      for(const k of kana){
+
+        let word=
+          typeof k==="string"
+            ? k
+            : (
+                k.text ||
+                k.value ||
+                ""
+              );
+
+        word=
+          normalizeKana(word);
+
+        if(
+          word.length>=2 &&
+          /^[ぁ-ゖー]+$/.test(word)
+        ){
+
+          if(!dictionaryWords.has(word)){
+
+            dictionaryWords.add(word);
+
+            addPrefix(word);
+
+            count++;
+          }
+        }
+      }
+    }
+
+    for(const word of ALLOW_WORDS){
+
+      dictionaryWords.add(word);
+      addPrefix(word);
+    }
+
+    dictionaryReady=true;
+
+    $("dictionaryStatus").textContent=
+      `📚 辞書OK ${count.toLocaleString()}語`;
+
+  }catch(error){
+
+    console.error(error);
+
+    $("dictionaryStatus").textContent=
+      "⚠️ 辞書未読込";
+  }
+}
+
+function addPrefix(word){
+
+  const first=word[0];
+
+  if(!prefixIndex.has(first)){
+    prefixIndex.set(first,[]);
+  }
+
+  prefixIndex
+    .get(first)
+    .push(word);
+}
+
+/* =====================================================
+   ASSIST
+===================================================== */
+
+function variants(base){
+
+  const result=new Set([base]);
+
+  if(DAKUTEN[base]){
+    result.add(DAKUTEN[base]);
+  }
+
+  if(HANDAKU[base]){
+    result.add(HANDAKU[base]);
+  }
+
+  if(SMALL[base]){
+    result.add(SMALL[base]);
+  }
+
+  return result;
+}
+
+function canBuild(word){
+
+  const available=new Set();
+
+  letters.forEach(base=>{
+
+    variants(base)
+      .forEach(v=>available.add(v));
+  });
+
+  if(carry){
+    available.add(carry);
   }
 
   for(const ch of word){
 
-    if(!possible.has(ch)){
+    if(!available.has(ch)){
       return false;
     }
   }
@@ -3471,21 +2788,16 @@ function canMakeFromBoard(word){
   return true;
 }
 
-
-/* =========================================================
-   候補アシスト
-========================================================= */
-
 function updateAssist(){
 
-  const box=$("assistCandidates");
+  const box=$("assistList");
 
   box.innerHTML="";
 
   if(!currentWord){
 
     $("assistInfo").textContent=
-      "1文字入力すると候補が出ます";
+      "1文字入力すると表示";
 
     return;
   }
@@ -3493,20 +2805,17 @@ function updateAssist(){
   if(!dictionaryReady){
 
     $("assistInfo").textContent=
-      "辞書を読み込み中…";
+      " 辞書準備中";
 
     return;
   }
 
-
-  const list=
+  const source=
     prefixIndex.get(currentWord[0]) || [];
-
 
   const candidates=[];
 
-
-  for(const word of list){
+  for(const word of source){
 
     if(
       !word.startsWith(currentWord)
@@ -3529,65 +2838,44 @@ function updateAssist(){
       continue;
     }
 
-    if(!canMakeFromBoard(word)){
+    if(!canBuild(word)){
       continue;
     }
 
     candidates.push(word);
 
-    if(candidates.length>=8){
+    if(candidates.length>=6){
       break;
     }
   }
 
-
   $("assistInfo").textContent=
     candidates.length
-      ? `${candidates.length}件のヒント`
-      : "候補なし";
-
+      ? ` ${candidates.length}件`
+      : " 候補なし";
 
   candidates.forEach(word=>{
 
-    const btn=document.createElement("button");
+    const button=
+      document.createElement("button");
 
-    btn.className="assistChip";
+    button.className="assistWord";
 
-    btn.textContent=
-      maskedCandidate(word);
+    button.textContent=
+      maskWord(word);
 
-    /*
-      候補は「答えを自動入力するボタン」ではなく
-      ヒントとして使用。
+    button.onclick=()=>{
 
-      タップすると、現在入力済みの部分までしか
-      入力しないため、ゲーム性を残す。
-    */
-
-    btn.onclick=()=>{
-
-      setGrowthMessage(
-        `💡 ${maskedCandidate(word)} をヒントに考えてみよう！`,
-        ""
+      message(
+        `💡「${maskWord(word)}」をヒントに考えよう！`
       );
-
     };
 
-    box.appendChild(btn);
+    box.appendChild(button);
   });
-
 }
 
-
-function maskedCandidate(word){
-
-  /*
-    2文字 → 100%表示
-
-    3文字以上 →
-    1・2文字目は100%
-    3文字目以降は各文字80%表示
-  */
+function maskWord(word){
 
   if(word.length<=2){
     return word;
@@ -3600,9 +2888,7 @@ function maskedCandidate(word){
     return maskCache.get(key);
   }
 
-
   let result="";
-
 
   for(let i=0;i<word.length;i++){
 
@@ -3613,74 +2899,25 @@ function maskedCandidate(word){
     }else{
 
       result+=
-        Math.random()<0.8
+        Math.random()<.8
           ? word[i]
           : "○";
     }
   }
 
-
-  maskCache.set(key,result);
+  maskCache.set(
+    key,
+    result
+  );
 
   return result;
 }
 
+/* =====================================================
+   WORD
+===================================================== */
 
-/* =========================================================
-   引継ぎ
-========================================================= */
-
-function updateCarry(){
-
-  const btn=$("carryButton");
-
-  $("carryChar").textContent=
-    carryCharacter || "―";
-
-  btn.disabled=
-    !carryCharacter ||
-    carryUsed;
-}
-
-
-window.useCarry=function(){
-
-  if(
-    !carryCharacter ||
-    carryUsed
-  ){
-    return;
-  }
-
-  /*
-    先頭に入れる
-  */
-
-  currentWord=
-    carryCharacter
-    +
-    currentWord;
-
-  carryUsed=true;
-
-  updateCarry();
-
-  drawWord();
-
-  setGrowthMessage(
-    `🔗「${carryCharacter}」を引継ぎ！ しりとりBONUSを狙おう！`,
-    ""
-  );
-};
-
-
-/* =========================================================
-   単語判定
-========================================================= */
-
-function judgeJapaneseWord(word){
-
-  word=normalizeKana(word);
+function validWord(word){
 
   if(BLOCK_WORDS.has(word)){
     return false;
@@ -3690,17 +2927,8 @@ function judgeJapaneseWord(word){
     return true;
   }
 
-  if(dictionaryWords.has(word)){
-    return true;
-  }
-
-  return false;
+  return dictionaryWords.has(word);
 }
-
-
-/* =========================================================
-   決定
-========================================================= */
 
 window.submitWord=function(){
 
@@ -3709,180 +2937,160 @@ window.submitWord=function(){
 
   if(word.length<2){
 
-    setGrowthMessage(
-      "⚠️ 2文字以上の言葉を作ってください",
-      "bad"
+    message(
+      "⚠️ 2文字以上の言葉を作ってください"
     );
 
     return;
   }
-
 
   if(usedWords.has(word)){
 
-    setGrowthMessage(
-      `⚠️「${word}」はすでに使用した言葉です`,
-      "bad"
+    message(
+      `⚠️「${word}」はすでに使用しています`
     );
 
     return;
   }
-
 
   if(!dictionaryReady){
 
-    setGrowthMessage(
-      "📚 辞書を読み込んでいます",
-      "bad"
+    message(
+      "📚 辞書を読み込み中です"
     );
 
     return;
   }
 
+  if(!validWord(word)){
 
-  if(!judgeJapaneseWord(word)){
-
-    setGrowthMessage(
-      `❌「${word}」は登録されている言葉として確認できませんでした`,
-      "bad"
+    message(
+      `❌「${word}」は言葉として確認できませんでした`
     );
 
     return;
   }
 
+  const oldCarry=carry;
 
-  const previousCarry=
-    carryCharacter;
-
-  const shiritori=
-    carryUsed &&
-    previousCarry &&
-    word.startsWith(previousCarry);
-
+  const combo=
+    carryWasUsed &&
+    oldCarry &&
+    word.startsWith(oldCarry);
 
   usedWords.add(word);
 
-
-  const growth=
-    applyGrowth(
+  const gain=
+    grow(
       player,
       word.length
     );
 
+  if(combo){
 
-  if(shiritori){
+    shiritoriBonus(player);
 
-    applyShiritoriBonus(player);
-
-    growth.shiritori=true;
+    gain.combo=true;
   }
-
 
   if(word.length>=5){
-    player.hasFivePlus=true;
+    player.fivePlus=true;
   }
 
-
-  /*
-    新しい引継ぎ文字
-  */
-
-  carrySource=word;
-
-  carryCharacter=
+  carry=
     word.slice(-1);
 
-  carryUsed=false;
-
-
-  addGrowthLog(
-    word,
-    growth
-  );
-
-
-  setGrowthMessage(
-    `✨「${word}」成立！`,
-    "good"
-  );
-
+  carryWasUsed=false;
 
   currentWord="";
 
-  generateLetters();
-
-  drawWord();
-
   updateCarry();
-
   updateGrowthStats();
+
+  message(
+    `✨「${word}」成立！ ${gainText(gain)}`
+  );
+
+  generateLetters();
+  drawWord();
 };
 
+function gainText(g){
 
-/* =========================================================
-   成長計算
-========================================================= */
+  const arr=[];
 
-function randomInt(min,max){
+  if(g.atk){
+    arr.push(`攻撃+${g.atk}`);
+  }
+
+  if(g.def){
+    arr.push(`防御+${g.def}`);
+  }
+
+  if(g.hp){
+    arr.push(`HP+${g.hp}`);
+  }
+
+  if(g.combo){
+    arr.push("しりとりBONUS!");
+  }
+
+  return arr.join(" / ");
+}
+
+function message(text){
+
+  $("message").textContent=text;
+}
+
+/* =====================================================
+   GROWTH CALC
+===================================================== */
+
+function rand(min,max){
 
   return Math.floor(
     Math.random()*(max-min+1)
   )+min;
 }
 
-
-function applyGrowth(fighter,length){
+function grow(fighter,length){
 
   let hp=0;
   let atk=0;
   let def=0;
 
-
   if(length===2){
 
-    atk=randomInt(3,7);
+    atk=rand(3,7);
 
     if(fighter.id==="hozuki"){
-      atk+=1;
+      atk++;
     }
 
-  }
+  }else if(length===3){
 
-
-  else if(length===3){
-
-    def=randomInt(3,7);
-
+    def=rand(3,7);
     atk=1;
 
     if(fighter.id==="nefer"){
-      def+=1;
+      def++;
     }
 
-  }
+  }else if(length===4){
 
-
-  else if(length===4){
-
-    hp=randomInt(6,14);
-
+    hp=rand(6,14);
     atk=1;
 
     if(fighter.id==="toma"){
-      hp+=1;
+      hp++;
     }
 
-  }
+  }else{
 
-
-  else if(length>=5){
-
-    atk=randomInt(2,5);
-
-    def=randomInt(2,5);
-
-    hp=randomInt(4,8);
-
+    atk=rand(2,5);
+    def=rand(2,5);
+    hp=rand(4,8);
 
     const extra=
       (length-5)*2;
@@ -3891,539 +3099,269 @@ function applyGrowth(fighter,length){
     def+=extra;
     hp+=extra;
 
-
-    /*
-      桃真
-      5文字 +20
-      6文字 +30
-      7文字 +40 ...
-    */
-
     if(fighter.id==="toma"){
 
       hp+=
-        20
-        +
+        20+
         (length-5)*10;
     }
   }
 
-
   fighter.atk+=atk;
   fighter.def+=def;
 
-  fighter.maxHp+=hp;
   fighter.hp+=hp;
-
+  fighter.maxHp+=hp;
 
   return{
     hp,
     atk,
     def,
-    shiritori:false
+    combo:false
   };
 }
 
-
-function applyShiritoriBonus(fighter){
+function shiritoriBonus(fighter){
 
   if(fighter.id==="hozuki"){
 
     fighter.atk+=2;
 
-  }
-
-  else if(fighter.id==="nefer"){
+  }else if(fighter.id==="nefer"){
 
     fighter.def+=1;
 
-  }
+  }else{
 
-  else if(fighter.id==="toma"){
-
-    fighter.maxHp+=5;
     fighter.hp+=5;
-
+    fighter.maxHp+=5;
   }
 }
 
-
-/* =========================================================
-   ログ
-========================================================= */
-
-function addGrowthLog(word,g){
-
-  let parts=[];
-
-  if(g.atk){
-    parts.push(`攻撃+${g.atk}`);
-  }
-
-  if(g.def){
-    parts.push(`防御+${g.def}`);
-  }
-
-  if(g.hp){
-    parts.push(`HP+${g.hp}`);
-  }
-
-  if(g.shiritori){
-    parts.push("🔗しりとりBONUS");
-  }
-
-
-  const div=document.createElement("div");
-
-  div.innerHTML=
-    `<b>「${word}」</b> ${parts.join(" / ")}`;
-
-
-  $("growthLog").prepend(div);
-}
-
-
-function setGrowthMessage(text,type){
-
-  const box=$("growthMessage");
-
-  box.textContent=text;
-
-  box.className=
-    "growthMessage"
-    +
-    (
-      type
-        ? " "+type
-        : ""
-    );
-}
-
-
-/* =========================================================
-   10文字変更
-========================================================= */
-
-window.resetLetters=function(){
-
-  if(resetCooldown){
-    return;
-  }
-
-  resetCooldown=true;
-
-  generateLetters();
-
-  const btn=$("resetLettersButton");
-
-  let remain=5;
-
-  btn.disabled=true;
-
-  btn.textContent=
-    `変更 ${remain}`;
-
-
-  const interval=setInterval(()=>{
-
-    remain--;
-
-    if(remain<=0){
-
-      clearInterval(interval);
-
-      resetCooldown=false;
-
-      btn.disabled=false;
-
-      btn.textContent=
-        "🔄 10文字変更";
-
-      return;
-    }
-
-    btn.textContent=
-      `変更 ${remain}`;
-
-  },1000);
-};
-
-
-/* =========================================================
-   育成画面
-========================================================= */
-
-function setupGrowthUI(){
-
-  $("growthCharacterArt").textContent=
-    player.emoji;
-
-  $("growthCharacterName").textContent=
-    player.name;
-
-  $("growthLog").innerHTML=
-    "ことばを作ってキャラクターを育てよう！";
-
-  $("timer").textContent="60.0";
-
-  updateGrowthStats();
-
-  updateCarry();
-
-  drawWord();
-}
-
-
-function updateGrowthStats(){
-
-  $("growthHP").textContent=
-    player.maxHp;
-
-  $("growthATK").textContent=
-    player.atk;
-
-  $("growthDEF").textContent=
-    player.def;
-}
-
-
-/* =========================================================
-   60秒
-========================================================= */
-
-function startGrowthTimer(){
-
-  clearInterval(growthTimer);
-
-  const started=
-    performance.now();
-
-  growthTimer=setInterval(()=>{
-
-    const elapsed=
-      (performance.now()-started)/1000;
-
-    growthTime=
-      Math.max(
-        0,
-        60-elapsed
-      );
-
-    $("timer").textContent=
-      growthTime.toFixed(1);
-
-
-    if(growthTime<=0){
-
-      clearInterval(growthTimer);
-
-      growthTimer=null;
-
-      finishGrowth();
-    }
-
-  },100);
-}
-
-
-function finishGrowth(){
-
-  /*
-    AI育成
-  */
-
-  simulateAIGrowth(enemy);
-
-
-  $("transitionHP").textContent=
-    player.maxHp;
-
-  $("transitionATK").textContent=
-    player.atk;
-
-  $("transitionDEF").textContent=
-    player.def;
-
-  showScreen("transitionScreen");
-}
-
-
-/* =========================================================
-   AI育成
-========================================================= */
-
-function simulateAIGrowth(ai){
-
-  /*
-    60秒相当の簡易育成。
-
-    鬼灯：2文字を多め
-    ネフェル：3文字を多め
-    桃真：4～5文字以上を多め
-  */
+/* =====================================================
+   AI GROWTH
+===================================================== */
+
+function simulateEnemyGrowth(){
 
   let time=0;
 
   while(time<60){
 
-    let length;
-
     const r=Math.random();
 
+    let len;
 
-    if(ai.id==="hozuki"){
+    if(enemy.id==="hozuki"){
 
       if(r<.75){
-        length=2;
-      }else if(r<.87){
-        length=3;
+        len=2;
+      }else if(r<.86){
+        len=3;
       }else if(r<.95){
-        length=4;
+        len=4;
       }else{
-        length=randomInt(5,7);
+        len=rand(5,7);
       }
 
-    }
-
-
-    else if(ai.id==="nefer"){
+    }else if(enemy.id==="nefer"){
 
       if(r<.50){
-        length=3;
+        len=3;
       }else if(r<.70){
-        length=2;
+        len=2;
       }else if(r<.87){
-        length=4;
+        len=4;
       }else{
-        length=randomInt(5,7);
+        len=rand(5,7);
       }
 
-    }
-
-
-    else{
-
-      /*
-        桃真
-        4文字 15%
-        5文字以上 40%
-      */
+    }else{
 
       if(r<.15){
-        length=4;
+        len=4;
       }else if(r<.55){
-        length=randomInt(5,8);
+        len=rand(5,8);
       }else if(r<.73){
-        length=2;
+        len=2;
       }else{
-        length=3;
+        len=3;
       }
     }
 
+    let cost;
 
-    const thinking=
-      length===2
-        ? 2
-        : length===3
-        ? 3.5
-        : length===4
-        ? 4.5
-        : 3+(length-5)*.3+length*.5;
+    if(len===2){
+      cost=2;
+    }else if(len===3){
+      cost=3.5;
+    }else if(len===4){
+      cost=4.5;
+    }else{
+      cost=
+        3+
+        .3*(len-5)+
+        .5*len;
+    }
 
-
-    if(time+thinking>60){
+    if(time+cost>60){
       break;
     }
 
-    time+=thinking;
+    time+=cost;
 
+    grow(enemy,len);
 
-    const g=
-      applyGrowth(
-        ai,
-        length
-      );
-
-
-    if(length>=5){
-      ai.hasFivePlus=true;
+    if(len>=5){
+      enemy.fivePlus=true;
     }
 
-
-    /*
-      AIしりとり
-      40%
-    */
-
     if(Math.random()<.4){
-      applyShiritoriBonus(ai);
+      shiritoriBonus(enemy);
     }
   }
 }
 
+function finishGrowth(){
 
-/* =========================================================
-   バトル開始
-========================================================= */
+  simulateEnemyGrowth();
 
-window.beginBattle=function(){
+  beginBattle();
+}
 
-  battleTurn=1;
+/* =====================================================
+   BATTLE
+===================================================== */
+
+function beginBattle(){
+
+  player.hp=
+    player.maxHp;
+
+  enemy.hp=
+    enemy.maxHp;
+
   playerTurn=true;
   battleFinished=false;
+  battleTurn=1;
 
-  player.hp=player.maxHp;
-  enemy.hp=enemy.maxHp;
+  $("battlePlayerImage").src=
+    player.image;
 
-  $("playerBattleArt").textContent=
-    player.emoji;
+  $("battleEnemyImage").src=
+    enemy.image;
 
-  $("enemyBattleArt").textContent=
-    enemy.emoji;
-
-  $("playerBattleName").textContent=
+  $("battlePlayerName").textContent=
     player.name;
 
-  $("enemyBattleName").textContent=
+  $("battleEnemyName").textContent=
     enemy.name;
 
-
-  $("skillLabel").textContent=
+  $("skillText").textContent=
     CHARACTERS[player.id].skill;
 
-  $("ultimateLabel").textContent=
+  $("ultimateText").textContent=
     CHARACTERS[player.id].ultimate;
-
 
   $("battleLog").innerHTML=
     "⚔️ バトル開始！<br>";
 
-
   showScreen("battleScreen");
 
-  updateBattleUI();
+  updateBattle();
+}
 
-  setCommands(true);
-};
+/* =====================================================
+   DAMAGE
+===================================================== */
 
+function effectiveDef(fighter){
 
-/* =========================================================
-   ダメージ
-========================================================= */
-
-function calculateDamage(
-  attacker,
-  defender,
-  options={}
-){
-
-  if(options.fixed){
-
-    return options.fixed;
-  }
-
-
-  let attack=
-    attacker.atk;
-
-  let defense=
-    defender.def;
-
+  let value=fighter.def;
 
   if(
-    attacker.id==="hozuki" &&
-    attacker.kishinAttack
+    fighter.id==="nefer" &&
+    fighter.triangle>0
   ){
+    value*=3;
+  }
 
-    attack*=2;
+  return value;
+}
+
+function damage(attacker,defender){
+
+  let atk=attacker.atk;
+
+  let def=
+    effectiveDef(defender);
+
+  if(attacker.kishinAttack){
+
+    atk*=2;
 
     attacker.kishinAttack=false;
   }
 
+  if(defender.kishinDefense){
 
-  if(
-    defender.id==="hozuki" &&
-    defender.kishinDefense
-  ){
-
-    defense=
-      Math.floor(defense/2);
+    def=
+      Math.floor(def/2);
 
     defender.kishinDefense=false;
   }
 
+  if(defender.defenseDownHits>0){
 
-  /*
-    桃真必殺
-    相手DEF -22
-  */
-
-  if(
-    defender.enemyDefDownHits>0
-  ){
-
-    defense=
+    def=
       Math.max(
         0,
-        defense-defender.enemyDefDownAmount
+        def-22
       );
 
-    defender.enemyDefDownHits--;
+    defender.defenseDownHits--;
   }
 
-
-  if(
-    attack-defense>=100
-  ){
-
+  if(atk-def>=100){
     return 100;
   }
 
-
-  let damage=
+  let result=
     Math.max(
       1,
-      attack-defense
+      atk-def
     );
 
-
-  damage=
+  result=
     Math.min(
       20,
-      damage
+      result
     );
 
+  if(defender.guard){
 
-  if(defender.guarding){
-
-    damage=
+    result=
       Math.max(
         1,
-        Math.ceil(damage/2)
+        Math.ceil(result/2)
       );
 
-    defender.guarding=false;
+    defender.guard=false;
   }
 
-
-  return damage;
+  return result;
 }
 
+/* =====================================================
+   ATTACK
+===================================================== */
 
-/* =========================================================
-   攻撃
-========================================================= */
-
-async function performAttack(
+async function attack(
   attacker,
   defender,
-  attackerIsPlayer,
-  options={}
+  fromPlayer,
+  hits=1
 ){
-
-  const hits=
-    options.hits || 1;
-
 
   for(let i=0;i<hits;i++){
 
@@ -4431,41 +3369,30 @@ async function performAttack(
       return;
     }
 
-
-    const damage=
-      calculateDamage(
+    const dmg=
+      damage(
         attacker,
-        defender,
-        options
+        defender
       );
-
 
     defender.hp=
       Math.max(
         0,
-        defender.hp-damage
+        defender.hp-dmg
       );
-
 
     defender.receivedHits++;
 
+    $("damageText").textContent=
+      `${dmg} ダメージ！`;
 
-    battleLog(
-      `${attacker.name}の攻撃！ ${damage}ダメージ！`
+    addBattleLog(
+      `${attacker.name}の攻撃！ ${dmg}ダメージ！`
     );
 
+    animateAttack(fromPlayer);
 
-    animateAttack(
-      attackerIsPlayer
-    );
-
-
-    updateBattleUI();
-
-
-    /*
-      ネフェル 33回耐久
-    */
+    updateBattle();
 
     if(
       defender.id==="nefer" &&
@@ -4481,7 +3408,6 @@ async function performAttack(
       return;
     }
 
-
     if(defender.hp<=0){
 
       finishBattle(
@@ -4492,17 +3418,15 @@ async function performAttack(
       return;
     }
 
-
     await wait(250);
   }
 }
 
+/* =====================================================
+   COMMAND
+===================================================== */
 
-/* =========================================================
-   プレイヤー行動
-========================================================= */
-
-window.playerAction=async function(action){
+window.playerCommand=async function(type){
 
   if(
     !playerTurn ||
@@ -4511,111 +3435,87 @@ window.playerAction=async function(action){
     return;
   }
 
-
-  setCommands(false);
-
-
-  /*
-    魅了されている場合
-  */
+  disableCommands();
 
   if(
-    player.charmTurns>0 &&
-    action!=="attack"
+    player.charm>0 &&
+    type!=="attack"
   ){
 
-    battleLog(
-      "💘 魅了中！通常攻撃しか使えない！"
+    addBattleLog(
+      "💘 魅了中！ 通常攻撃しかできない！"
     );
 
-    setCommands(true);
-
+    updateBattle();
     return;
   }
 
+  if(type==="attack"){
 
-  if(action==="attack"){
-
-    await performAttack(
+    await attack(
       player,
       enemy,
       true
     );
 
-    reduceSkillCooldown(player);
-  }
+    reduceCooldown(player);
 
+  }else if(type==="guard"){
 
-  else if(action==="guard"){
+    player.guard=true;
 
-    player.guarding=true;
-
-    battleLog(
-      `${player.name}は防御態勢をとった！`
+    addBattleLog(
+      `${player.name}は防御した！`
     );
 
-  }
+  }else if(type==="skill"){
 
-
-  else if(action==="skill"){
-
-    const success=
+    const ok=
       await useSkill(
         player,
         enemy,
         true
       );
 
-    if(!success){
-
-      setCommands(true);
+    if(!ok){
+      updateBattle();
       return;
     }
 
-  }
+  }else{
 
-
-  else if(action==="ultimate"){
-
-    const success=
+    const ok=
       await useUltimate(
         player,
         enemy,
         true
       );
 
-    if(!success){
-
-      setCommands(true);
+    if(!ok){
+      updateBattle();
       return;
     }
-
   }
-
 
   if(battleFinished){
     return;
   }
 
-
-  updateTurnEffects(player);
-
+  tick(player);
 
   playerTurn=false;
 
-  updateBattleUI();
-
+  updateBattle();
 
   setTimeout(
     enemyAction,
-    550
+    500
   );
 };
 
-
-/* =========================================================
-   固有技
-========================================================= */
+/* =====================================================
+   SKILL
+===================================================== */
 
 async function useSkill(
   user,
@@ -4623,51 +3523,29 @@ async function useSkill(
   isPlayer
 ){
 
-  if(user.skillUses>=3){
-
-    battleLog(
-      "固有技は3回まで！"
-    );
-
+  if(
+    user.skillUses>=3 ||
+    user.skillCooldown>0
+  ){
     return false;
   }
-
-
-  if(user.skillCooldown>0){
-
-    battleLog(
-      `固有技はあと${user.skillCooldown}回攻撃すると使用可能！`
-    );
-
-    return false;
-  }
-
 
   user.skillUses++;
-
-  user.usedNormalSkill=true;
-
+  user.usedSkill=true;
   user.skillCooldown=3;
-
 
   if(user.id==="hozuki"){
 
-    battleLog(
-      "🔥 鬼灯「二連撃」！"
+    addBattleLog(
+      "🔥 二連撃！"
     );
 
-    await performAttack(
+    await attack(
       user,
       target,
       isPlayer,
-      {hits:2}
+      2
     );
-
-
-    /*
-      二連撃の2ヒットを
-      クールダウン攻撃2回分として扱う
-    */
 
     user.skillCooldown=
       Math.max(
@@ -4675,41 +3553,30 @@ async function useSkill(
         user.skillCooldown-2
       );
 
-  }
+  }else if(user.id==="nefer"){
 
+    user.triangle=3;
 
-  else if(user.id==="nefer"){
-
-    user.triangleTurns=3;
-
-    battleLog(
-      "🔺 ネフェル「三角結界」！ 防御力3倍！"
+    addBattleLog(
+      "🔺 三角結界！ 防御力3倍！"
     );
 
-  }
-
-
-  else if(user.id==="toma"){
+  }else{
 
     user.maxHp+=22;
     user.hp+=22;
 
-    battleLog(
-      "🍡 桃真「黍団子」！ HP+22！"
+    addBattleLog(
+      "🍡 黍団子！ HP+22！"
     );
-
   }
-
-
-  updateBattleUI();
 
   return true;
 }
 
-
-/* =========================================================
-   必殺技
-========================================================= */
+/* =====================================================
+   ULTIMATE
+===================================================== */
 
 async function useUltimate(
   user,
@@ -4717,37 +3584,17 @@ async function useUltimate(
   isPlayer
 ){
 
-  if(user.ultimateUsed){
-
-    battleLog(
-      "必殺技は1回だけ！"
-    );
-
-    return false;
-  }
-
-
   if(
-    !user.hasFivePlus ||
-    !user.usedNormalSkill
+    user.ultimateUsed ||
+    !user.fivePlus ||
+    !user.usedSkill
   ){
-
-    battleLog(
-      "🔥 必殺技条件：5文字以上の言葉＋固有技を1回使用"
-    );
-
     return false;
   }
-
 
   user.ultimateUsed=true;
 
-
   if(user.id==="hozuki"){
-
-    battleLog(
-      "👹🔥 鬼神化！"
-    );
 
     user.hp=
       Math.max(
@@ -4758,38 +3605,21 @@ async function useUltimate(
     user.kishinAttack=true;
     user.kishinDefense=true;
 
-    battleLog(
-      "HP半減！ 次の攻撃力2倍！ 次に受ける攻撃では防御半減！"
+    addBattleLog(
+      "👹 鬼神化！ HP半減・次の攻撃2倍！"
     );
 
-  }
+  }else if(user.id==="nefer"){
 
+    target.charm=3;
 
-  else if(user.id==="nefer"){
-
-    battleLog(
-      "💘 ネフェル「魅了」！"
+    addBattleLog(
+      "💘 魅了！ 3ターン通常攻撃のみ！"
     );
 
-    target.charmTurns=3;
+  }else{
 
-    battleLog(
-      `${target.name}は3ターン通常攻撃しか使えない！`
-    );
-
-  }
-
-
-  else if(user.id==="toma"){
-
-    battleLog(
-      "🐕🐒🐦 桃真「四人共闘」！"
-    );
-
-
-    target.enemyDefDownHits=2;
-    target.enemyDefDownAmount=22;
-
+    target.defenseDownHits=2;
 
     target.hp=
       Math.max(
@@ -4797,15 +3627,12 @@ async function useUltimate(
         target.hp-33
       );
 
-
-    battleLog(
-      "仲間たちの一撃！ 防御無視33ダメージ！"
-    );
-
-
     user.atk+=11;
-    user.tomaAtkTurns=4;
+    user.tomaAttackTurns=4;
 
+    addBattleLog(
+      "🐕🐒🐦 四人共闘！ 防御無視33ダメージ！"
+    );
 
     if(target.hp<=0){
 
@@ -4813,22 +3640,17 @@ async function useUltimate(
         user===player,
         "四人共闘で決着！"
       );
-
-      return true;
     }
-
   }
 
-
-  updateBattleUI();
+  updateBattle();
 
   return true;
 }
 
-
-/* =========================================================
-   AI行動
-========================================================= */
+/* =====================================================
+   AI
+===================================================== */
 
 async function enemyAction(){
 
@@ -4836,87 +3658,57 @@ async function enemyAction(){
     return;
   }
 
-
-  $("battleTurn").textContent=
-    "AIのターン";
-
-
-  await wait(400);
-
-
   let action="attack";
 
+  if(enemy.charm<=0){
 
-  /*
-    魅了中は攻撃のみ
-  */
-
-  if(enemy.charmTurns<=0){
-
-    const canUlt=
-      enemy.hasFivePlus &&
-      enemy.usedNormalSkill &&
+    const canUltimate=
+      enemy.fivePlus &&
+      enemy.usedSkill &&
       !enemy.ultimateUsed;
-
 
     const canSkill=
       enemy.skillUses<3 &&
       enemy.skillCooldown===0;
 
-
     const r=Math.random();
 
-
     if(
-      canUlt &&
+      canUltimate &&
       r<.18
     ){
-
       action="ultimate";
 
-    }
-
-    else if(
+    }else if(
       canSkill &&
-      r<.40
+      r<.38
     ){
-
       action="skill";
 
-    }
-
-    else if(r<.55){
-
+    }else if(r<.52){
       action="guard";
     }
   }
 
-
   if(action==="attack"){
 
-    await performAttack(
+    await attack(
       enemy,
       player,
       false
     );
 
-    reduceSkillCooldown(enemy);
+    reduceCooldown(enemy);
 
-  }
+  }else if(action==="guard"){
 
+    enemy.guard=true;
 
-  else if(action==="guard"){
-
-    enemy.guarding=true;
-
-    battleLog(
+    addBattleLog(
       `${enemy.name}は防御した！`
     );
 
-  }
-
-
-  else if(action==="skill"){
+  }else if(action==="skill"){
 
     await useSkill(
       enemy,
@@ -4924,290 +3716,142 @@ async function enemyAction(){
       false
     );
 
-  }
-
-
-  else if(action==="ultimate"){
+  }else{
 
     await useUltimate(
       enemy,
       player,
       false
     );
-
   }
-
 
   if(battleFinished){
     return;
   }
 
-
-  updateTurnEffects(enemy);
-
+  tick(enemy);
 
   battleTurn++;
-
   playerTurn=true;
 
-  updateBattleUI();
-
-  setCommands(true);
+  updateBattle();
 }
 
+/* =====================================================
+   EFFECT
+===================================================== */
 
-/* =========================================================
-   ターン効果
-========================================================= */
-
-function reduceSkillCooldown(fighter){
+function reduceCooldown(fighter){
 
   if(fighter.skillCooldown>0){
-
     fighter.skillCooldown--;
   }
 }
 
+function tick(fighter){
 
-function updateTurnEffects(fighter){
-
-  if(fighter.charmTurns>0){
-
-    fighter.charmTurns--;
+  if(fighter.charm>0){
+    fighter.charm--;
   }
 
-
-  if(fighter.triangleTurns>0){
-
-    fighter.triangleTurns--;
+  if(fighter.triangle>0){
+    fighter.triangle--;
   }
 
+  if(fighter.tomaAttackTurns>0){
 
-  if(
-    fighter.id==="toma" &&
-    fighter.tomaAtkTurns>0
-  ){
+    fighter.tomaAttackTurns--;
 
-    fighter.tomaAtkTurns--;
-
-    if(fighter.tomaAtkTurns===0){
+    if(fighter.tomaAttackTurns===0){
 
       fighter.atk=
         Math.max(
           CHARACTERS.toma.atk,
           fighter.atk-11
         );
-
-      battleLog(
-        `${fighter.name}の四人共闘の攻撃力上昇が終了`
-      );
     }
   }
 }
 
+/* =====================================================
+   BATTLE UI
+===================================================== */
 
-/* =========================================================
-   実効防御
-========================================================= */
+function updateBattle(){
 
-function effectiveDefense(fighter){
+  $("playerHPBar").style.width=
+    `${Math.max(
+      0,
+      player.hp/player.maxHp*100
+    )}%`;
 
-  let def=fighter.def;
+  $("enemyHPBar").style.width=
+    `${Math.max(
+      0,
+      enemy.hp/enemy.maxHp*100
+    )}%`;
 
-  if(
-    fighter.id==="nefer" &&
-    fighter.triangleTurns>0
-  ){
+  $("playerStats").textContent=
+    `HP ${player.hp}/${player.maxHp}　攻撃 ${player.atk}　防御 ${effectiveDef(player)}`;
 
-    def*=3;
-  }
+  $("enemyStats").textContent=
+    `HP ${enemy.hp}/${enemy.maxHp}　攻撃 ${enemy.atk}　防御 ${effectiveDef(enemy)}`;
 
-  return def;
-}
-
-
-/*
-  calculateDamageから参照するdefを
-  三角結界込みにするため上書き版
-*/
-
-function getBattleDefense(fighter){
-
-  return effectiveDefense(fighter);
-}
-
-
-/* =========================================================
-   バトルUI
-========================================================= */
-
-function updateBattleUI(){
-
-  if(!player || !enemy){
-    return;
-  }
-
-
-  $("playerHPFill").style.width=
-    `${Math.max(0,player.hp/player.maxHp*100)}%`;
-
-  $("enemyHPFill").style.width=
-    `${Math.max(0,enemy.hp/enemy.maxHp*100)}%`;
-
-
-  $("playerBattleStats").innerHTML=
-    `HP ${player.hp}/${player.maxHp}<br>`+
-    `攻撃 ${player.atk}<br>`+
-    `防御 ${effectiveDefense(player)}`;
-
-
-  $("enemyBattleStats").innerHTML=
-    `HP ${enemy.hp}/${enemy.maxHp}<br>`+
-    `攻撃 ${enemy.atk}<br>`+
-    `防御 ${effectiveDefense(enemy)}`;
-
-
-  $("playerEffects").textContent=
-    effectText(player);
-
-  $("enemyEffects").textContent=
-    effectText(enemy);
-
-
-  $("battleTurn").textContent=
+  $("battleTurnText").textContent=
     playerTurn
-      ? "あなたのターン"
-      : "AIのターン";
+      ? `TURN ${battleTurn}　あなたのターン`
+      : `TURN ${battleTurn}　AIのターン`;
 
-  $("battleRound").textContent=
-    `TURN ${battleTurn}`;
-
-
-  updateCommandState();
-}
-
-
-function effectText(f){
-
-  const arr=[];
-
-  if(f.guarding){
-    arr.push("🛡️防御");
-  }
-
-  if(f.triangleTurns>0){
-    arr.push(`🔺結界${f.triangleTurns}`);
-  }
-
-  if(f.charmTurns>0){
-    arr.push(`💘魅了${f.charmTurns}`);
-  }
-
-  if(f.kishinAttack){
-    arr.push("🔥攻撃2倍待機");
-  }
-
-  if(f.kishinDefense){
-    arr.push("⚠️防御半減待機");
-  }
-
-  if(f.tomaAtkTurns>0){
-    arr.push(`🐕共闘${f.tomaAtkTurns}`);
-  }
-
-  return arr.join(" ");
-}
-
-
-function updateCommandState(){
-
-  if(!player){
-    return;
-  }
-
-
-  const disabled=
+  const lock=
     !playerTurn ||
     battleFinished;
 
+  $("attackButton").disabled=
+    lock;
 
-  $("attackCommand").disabled=
-    disabled;
+  $("guardButton").disabled=
+    lock ||
+    player.charm>0;
 
-
-  $("guardCommand").disabled=
-    disabled ||
-    player.charmTurns>0;
-
-
-  $("skillCommand").disabled=
-    disabled ||
-    player.charmTurns>0 ||
+  $("skillButton").disabled=
+    lock ||
+    player.charm>0 ||
     player.skillUses>=3 ||
     player.skillCooldown>0;
 
-
-  $("ultimateCommand").disabled=
-    disabled ||
-    player.charmTurns>0 ||
+  $("ultimateButton").disabled=
+    lock ||
+    player.charm>0 ||
     player.ultimateUsed ||
-    !player.hasFivePlus ||
-    !player.usedNormalSkill;
+    !player.fivePlus ||
+    !player.usedSkill;
 
+  $("skillText").textContent=
+    player.skillCooldown>0
+      ? `${CHARACTERS[player.id].skill} あと${player.skillCooldown}攻撃`
+      : `${CHARACTERS[player.id].skill} ${player.skillUses}/3`;
 
-  if(player.skillCooldown>0){
-
-    $("skillLabel").textContent=
-      `${CHARACTERS[player.id].skill} あと${player.skillCooldown}攻撃`;
-
-  }else{
-
-    $("skillLabel").textContent=
-      `${CHARACTERS[player.id].skill} ${player.skillUses}/3`;
-  }
-
-
-  if(
-    !player.hasFivePlus ||
-    !player.usedNormalSkill
-  ){
-
-    $("ultimateLabel").textContent=
-      "条件未達成";
-
-  }else if(player.ultimateUsed){
-
-    $("ultimateLabel").textContent=
-      "使用済み";
-
-  }else{
-
-    $("ultimateLabel").textContent=
-      CHARACTERS[player.id].ultimate;
-  }
+  $("ultimateText").textContent=
+    player.ultimateUsed
+      ? "使用済み"
+      : (
+          player.fivePlus &&
+          player.usedSkill
+            ? CHARACTERS[player.id].ultimate
+            : "条件未達成"
+        );
 }
 
+function disableCommands(){
 
-function setCommands(enabled){
-
-  if(!enabled){
-
-    document
-      .querySelectorAll(".command")
-      .forEach(x=>x.disabled=true);
-
-    return;
-  }
-
-  updateCommandState();
+  document
+    .querySelectorAll(".command")
+    .forEach(
+      b=>b.disabled=true
+    );
 }
 
-
-/* =========================================================
-   バトルログ
-========================================================= */
-
-function battleLog(text){
+function addBattleLog(text){
 
   const box=$("battleLog");
 
@@ -5218,34 +3862,29 @@ function battleLog(text){
     box.scrollHeight;
 }
 
+/* =====================================================
+   ANIMATION
+===================================================== */
 
-/* =========================================================
-   アニメ
-========================================================= */
-
-function animateAttack(playerSide){
+function animateAttack(fromPlayer){
 
   const attacker=
-    playerSide
-      ? $("playerBattleArt")
-      : $("enemyBattleArt");
+    fromPlayer
+      ? $("battlePlayerImage")
+      : $("battleEnemyImage");
 
   const defender=
-    playerSide
-      ? $("enemyBattleArt")
-      : $("playerBattleArt");
-
+    fromPlayer
+      ? $("battleEnemyImage")
+      : $("battlePlayerImage");
 
   attacker.classList.remove("attackMove");
   defender.classList.remove("hit");
 
-
   void attacker.offsetWidth;
-
 
   attacker.classList.add("attackMove");
   defender.classList.add("hit");
-
 
   setTimeout(()=>{
 
@@ -5255,12 +3894,11 @@ function animateAttack(playerSide){
   },300);
 }
 
+/* =====================================================
+   RESULT
+===================================================== */
 
-/* =========================================================
-   勝敗
-========================================================= */
-
-function finishBattle(playerWon,reason){
+function finishBattle(win,reason){
 
   if(battleFinished){
     return;
@@ -5268,18 +3906,27 @@ function finishBattle(playerWon,reason){
 
   battleFinished=true;
 
-  setCommands(false);
-
+  disableCommands();
 
   setTimeout(()=>{
 
-    $("resultTitle").textContent=
-      playerWon
-        ? "🏆 WIN!"
-        : "💥 LOSE";
+    const character=
+      win
+        ? CHARACTERS[player.id]
+        : CHARACTERS[enemy.id];
 
-    $("resultReason").textContent=
-      reason;
+    $("resultImage").src=
+      character.image;
+
+    $("resultTitle").textContent=
+      win
+        ? "勝利！"
+        : "敗北…";
+
+    $("resultSpeech").textContent=
+      win
+        ? CHARACTERS[player.id].speech.win
+        : CHARACTERS[player.id].speech.lose;
 
     $("resultWords").textContent=
       usedWords.size;
@@ -5295,186 +3942,59 @@ function finishBattle(playerWon,reason){
 
     showScreen("resultScreen");
 
-  },600);
+  },650);
 }
 
+/* =====================================================
+   RESULT BUTTON
+===================================================== */
 
-/* =========================================================
-   タイトルへ
-========================================================= */
+window.rematch=function(){
+
+  setupReady();
+
+  showScreen("readyScreen");
+};
 
 window.returnTitle=function(){
 
-  clearInterval(growthTimer);
-
-  growthTimer=null;
+  clearInterval(timerHandle);
 
   showScreen("titleScreen");
 };
 
-
-/* =========================================================
-   モーダル
-========================================================= */
+/* =====================================================
+   RULE
+===================================================== */
 
 window.openRules=function(){
 
-  $("rulesModal").classList.add("on");
+  $("ruleModal")
+    .classList.add("on");
 };
-
 
 window.closeRules=function(){
 
-  $("rulesModal").classList.remove("on");
+  $("ruleModal")
+    .classList.remove("on");
 };
 
-
-window.showSimpleMessage=function(text){
-
-  $("simpleMessage").textContent=text;
-
-  $("messageModal").classList.add("on");
-};
-
-
-window.closeSimpleMessage=function(){
-
-  $("messageModal").classList.remove("on");
-};
-
-
-/* =========================================================
+/* =====================================================
    WAIT
-========================================================= */
+===================================================== */
 
 function wait(ms){
 
   return new Promise(
-    resolve=>
-      setTimeout(resolve,ms)
+    resolve=>setTimeout(resolve,ms)
   );
 }
 
+/* =====================================================
+   STARTUP
+===================================================== */
 
-/* =========================================================
-   重要：
-   三角結界をダメージ計算へ反映
-========================================================= */
-
-/*
-  元の calculateDamage 内では defender.def を参照しているので、
-  実際の攻撃直前に結界倍率を扱うため
-  performAttack 用の補助処理を追加する。
-*/
-
-const originalCalculateDamage=
-  calculateDamage;
-
-
-/*
-  JavaScriptの関数宣言を直接差し替える代わりに、
-  effective DEF を反映した専用関数を使う。
-*/
-
-calculateDamage=function(
-  attacker,
-  defender,
-  options={}
-){
-
-  if(options.fixed){
-
-    return options.fixed;
-  }
-
-
-  let attack=
-    attacker.atk;
-
-  let defense=
-    effectiveDefense(defender);
-
-
-  if(
-    attacker.id==="hozuki" &&
-    attacker.kishinAttack
-  ){
-
-    attack*=2;
-
-    attacker.kishinAttack=false;
-  }
-
-
-  if(
-    defender.id==="hozuki" &&
-    defender.kishinDefense
-  ){
-
-    defense=
-      Math.floor(defense/2);
-
-    defender.kishinDefense=false;
-  }
-
-
-  if(
-    defender.enemyDefDownHits>0
-  ){
-
-    defense=
-      Math.max(
-        0,
-        defense-defender.enemyDefDownAmount
-      );
-
-    defender.enemyDefDownHits--;
-  }
-
-
-  if(
-    attack-defense>=100
-  ){
-
-    return 100;
-  }
-
-
-  let damage=
-    Math.max(
-      1,
-      attack-defense
-    );
-
-
-  damage=
-    Math.min(
-      20,
-      damage
-    );
-
-
-  if(defender.guarding){
-
-    damage=
-      Math.max(
-        1,
-        Math.ceil(damage/2)
-      );
-
-    defender.guarding=false;
-  }
-
-
-  return damage;
-};
-
-
-/* =========================================================
-   起動
-========================================================= */
-
-loadWordDictionary();
+loadDictionary();
 
 })();
 </script>
